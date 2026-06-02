@@ -2,7 +2,11 @@
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "../environment";
+import {
+  SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_SERVICE_KEY,
+  SUPABASE_URL,
+} from "../environment";
 import { redirect } from "next/navigation";
 
 /**
@@ -10,6 +14,15 @@ import { redirect } from "next/navigation";
  * @returns A Supabase Client object
  */
 export async function createClient() {
+  if (SUPABASE_URL === "") {
+    console.warn("Warning: Missing supabase URL");
+  }
+  if (SUPABASE_PUBLISHABLE_KEY === "") {
+    console.warn("Warning: Missing supabase publishable key");
+  }
+  if (SUPABASE_SERVICE_KEY === "") {
+    console.warn("Warning: Missing supabase admin key");
+  }
   const clientCookies = await cookies();
   return createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
@@ -50,14 +63,18 @@ export async function signUp(entry: FormData) {
     console.error(error.message);
     redirect("/error");
   }
-  if (data.user) {
+  if (data.user && data.session) {
     const current = new Date().toISOString();
-    await client.from("user_profiles").insert({
+    const tableError = await pushUser(client, {
       id: data.user.id,
-      username: entry.get("username"),
-      joined_at: current,
+      username: entry.get("username") as string,
       updated_at: current,
+      joined_at: current,
     });
+    if (tableError) {
+      console.error(tableError.message);
+      redirect("/error");
+    }
   } else {
     console.error("Could not sign up user onto profile table, no user data received");
     redirect("/error");
@@ -93,4 +110,17 @@ export async function signOut() {
   const client = await createClient();
   await client.auth.signOut();
   redirect("/auth");
+}
+
+export async function pushUser(
+  client: Awaited<ReturnType<typeof createClient>>,
+  user: UserClient,
+) {
+  const { error: tableError } = await client.from("user_profiles").insert({
+    id: user.id,
+    username: user.username,
+    joined_at: user.joined_at,
+    updated_at: user.updated_at,
+  });
+  return tableError;
 }
