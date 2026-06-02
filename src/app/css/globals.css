@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+:root {
+  --primary: rgb(255, 255, 255);
+  --secondary: rgb(249, 249, 249);
+  --tertiary: rgb(238, 236, 231);
+
+  --font-primary: rgb(9, 9, 11);
+  --font-secondary: rgb(142, 134, 129);
+  --font-tertiary: rgb(193, 185, 176);
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-tertiary: var(--tertiary);
+
+  --color-font-primary: var(--font-primary);
+  --color-font-secondary: var(--font-secondary);
+  --color-font-tertiary: var(--font-tertiary);
+}
+
+h1 {
+  font-weight: bold;
+  font-size: large;
+}
+
+input {
+  @apply bg-primary w-full rounded-2xl px-2 py-1 border-0 border-font-primary text-center text-font-primary placeholder:text-font-secondary;
+}
