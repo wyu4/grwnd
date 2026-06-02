@@ -28,3 +28,7 @@ h1 {
 input {
   @apply bg-primary w-full rounded-2xl px-2 py-1 border-0 border-font-primary text-center text-font-primary placeholder:text-font-secondary;
 }
+
+button {
+  cursor: grab;
+}

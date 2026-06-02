@@ -61,7 +61,7 @@ export async function signUp(entry: FormData) {
   });
   if (error) {
     console.error(error.message);
-    redirect("/error");
+    return error.message;
   }
   if (data.user && data.session) {
     const current = new Date().toISOString();
@@ -73,13 +73,11 @@ export async function signUp(entry: FormData) {
     });
     if (tableError) {
       console.error(tableError.message);
-      redirect("/error");
+    } else {
+      redirect("/dashboard");
     }
-  } else {
-    console.error("Could not sign up user onto profile table, no user data received");
-    redirect("/error");
   }
-  redirect("/dashboard");
+  return "We could not sign you up (it's our fault). Try again.";
 }
 
 /**
@@ -97,7 +95,7 @@ export async function signIn(entry: FormData) {
   });
   if (error) {
     console.error(error.message);
-    redirect("/error");
+    return error.message;
   }
 
   redirect("/dashboard");
@@ -112,6 +110,12 @@ export async function signOut() {
   redirect("/auth");
 }
 
+/**
+ * Create an entirely new user
+ * @param client Authenticated user client object
+ * @param user Brand new user data
+ * @returns Potential error
+ */
 export async function pushUser(
   client: Awaited<ReturnType<typeof createClient>>,
   user: UserClient,
