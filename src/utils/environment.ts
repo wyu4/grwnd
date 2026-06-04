@@ -1,9 +1,3 @@
-/** The public Supabase URL. */
-export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-
-/** The public Supabase key. */
-export const SUPABASE_PUBLISHABLE_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
-
-/** The service role Supabase key. */
-export const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY ?? "";
+export const GITHUB_OAUTH_ID = process.env.GITHUB_OAUTH_ID ?? "";
+export const GITHUB_OAUTH_SECRET = process.env.GITHUB_OAUTH_SECRET ?? "";
+export const DATABASE_CONNECTION_URL = process.env.DATABASE_CONNECTION_URL ?? "";
