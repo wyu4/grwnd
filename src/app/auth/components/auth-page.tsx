@@ -1,5 +1,5 @@
 "use client";
-import { authClient } from "@/utils/authentication/client";
+import { authClient, signInGitHub } from "@/utils/authentication/client";
 import { useRef, useState } from "react";
 
 type AuthMode = "Sign_In" | "Sign_Up";
@@ -16,10 +16,7 @@ export default function AuthPage() {
           onSubmit={async (e) => {
             e.preventDefault();
             setAuthenticating(true);
-            const { error } = await authClient.signIn.social({
-              provider: "github",
-              callbackURL: "/dashboard",
-            });
+            const { error } = await signInGitHub();
             setAuthenticating(false);
             setError(error?.message);
           }}
