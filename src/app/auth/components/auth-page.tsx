@@ -1,4 +1,5 @@
 "use client";
+import BlackButton from "@/app/reusable/Buttons";
 import { authClient, signInGitHub } from "@/utils/authentication/client";
 import { useRef, useState } from "react";
 
@@ -21,16 +22,15 @@ export default function AuthPage() {
             setError(error?.message);
           }}
         >
-          <button
+          <BlackButton
             type="submit"
             disabled={authenticating}
-            className="bg-font-primary mt-1 text-primary rounded-full text-center px-4 py-1"
             style={{
               opacity: authenticating ? 0.5 : 1,
             }}
           >
             Continue with GitHub
-          </button>
+          </BlackButton>
         </form>
 
         {error && <p className="text-center">{error}</p>}
