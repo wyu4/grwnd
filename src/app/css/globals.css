@@ -20,9 +20,24 @@
   --color-font-tertiary: var(--font-tertiary);
 }
 
+h1,
+h2,
+p,
+button,
+a {
+  margin-block: none;
+}
+
 h1 {
   font-weight: bold;
   font-size: large;
+  font-family: var(--font-lexend), sans-serif;
+}
+
+h2,
+h3,
+p {
+  font-family: var(--font-open-sans), sans-serif;
 }
 
 input {
