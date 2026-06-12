@@ -1,5 +1,7 @@
+"use client";
+
 import { apiKeyClient } from "@better-auth/api-key/client";
-import { createAuthClient } from "better-auth/client";
+import { createAuthClient } from "better-auth/react";
 import { redirect } from "next/navigation";
 
 /** Authentication client [CLIENT-SIDE] */

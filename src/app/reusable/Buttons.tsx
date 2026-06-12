@@ -1,3 +1,5 @@
+"use client";
+
 import { ButtonType } from "@/types/global";
 import { forwardRef } from "react";
 
