@@ -1,0 +1,17 @@
+<svg width="250" height="250" viewBox="10 10 80 80" role="img" xmlns="http://www.w3.org/2000/svg">
+  <polygon
+    points="50,15 15,50 50,85 85,50"
+    fill="rgb(9, 9, 11)"
+    stroke="rgb(9, 9, 11)"
+    stroke-width="5"
+    stroke-linejoin="round"
+  />
+  <polyline
+    points="50,30 30,50 50,70 70,50 60,40 50,50"
+    fill="none"
+    stroke="rgb(255, 255, 255)"
+    stroke-width="7.5"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+</svg>

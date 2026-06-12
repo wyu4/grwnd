@@ -24,6 +24,18 @@ export const metadata: Metadata = {
   title: "Feed | Grwnd",
   description:
     "A place for developers to post problems worth solving and projects worth knowing about.",
+  icons: [
+    {
+      rel: "icon",
+      url: "./grwnd-light.svg",
+      media: "(prefers-color-scheme: light)",
+    },
+    {
+      rel: "icon",
+      url: "./grwnd-dark.svg",
+      media: "(prefers-color-scheme: dark)",
+    },
+  ],
 };
 
 export default function RootLayout({
