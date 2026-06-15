@@ -45,13 +45,13 @@ export default function FeedPost({
 
   return (
     <div className="relative shrink-0 w-full border border-font-primary rounded-lg bg-primary flex flex-col justify-start items-center p-4 gap-4">
-      <div className="relative flex flex-row gap-[inherit] w-full">
+      <div className="relative flex flex-row gap-[inherit] w-full justify-start items-center">
         <UndraggableImage
           src={author.icon}
           alt={author.username}
           className="aspect-square w-15 rounded-full"
         />
-        <div className="relative flex flex-col justify-start items-start">
+        <div className="relative flex flex-col justify-center items-start">
           <p className="text-lg">
             <b>{author.username}</b>
           </p>
