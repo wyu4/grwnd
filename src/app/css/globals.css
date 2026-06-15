@@ -20,6 +20,19 @@
   --color-font-tertiary: var(--font-tertiary);
 }
 
+::-webkit-scrollbar {
+  width: 7.5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--font-primary);
+  border-radius: 4px;
+}
+
 h1,
 h2,
 p,
@@ -30,7 +43,7 @@ a {
 
 h1 {
   font-weight: bold;
-  font-size: large;
+  font-size: larger;
   font-family: var(--font-lexend), sans-serif;
 }
 
