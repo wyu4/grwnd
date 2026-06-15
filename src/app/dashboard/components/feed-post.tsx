@@ -39,7 +39,7 @@ export default function FeedPost({
       }
     };
     update();
-    const id = setInterval(update, 10000);
+    const id = setInterval(update, 60 * 1000);
     return () => clearInterval(id);
   }, [uploadDate]);
 

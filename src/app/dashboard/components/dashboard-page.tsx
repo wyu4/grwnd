@@ -35,6 +35,84 @@ export default function DashboardPage({ isLoggedIn }: { isLoggedIn: boolean }) {
           description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
           uploadDate={TestTime}
         />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
+        <FeedPost
+          author={TestUser}
+          title="This is a post"
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
+          uploadDate={TestTime}
+        />
       </div>
     </div>
   );
