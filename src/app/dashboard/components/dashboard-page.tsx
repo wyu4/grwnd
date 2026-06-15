@@ -28,11 +28,11 @@ export default function DashboardPage({ isLoggedIn }: { isLoggedIn: boolean }) {
       style={{ paddingTop: topBarHeight }}
     >
       <TopBar ref={topBarRef} isLoggedIn={isLoggedIn} />
-      <div className="relative flex flex-col justify-start items-center p-4 gap-2 min-h-full w-1/3">
+      <div className="relative flex flex-col justify-start items-center p-4 gap-2 w-full md:w-1/2">
         <FeedPost
           author={TestUser}
           title="This is a post"
-          description="This post is about  this awesome project called Grwnd, where developers can post about projects worth knowing."
+          description="This post is about this awesome project called Grwnd, where developers can post about projects worth knowing."
           uploadDate={TestTime}
         />
       </div>
