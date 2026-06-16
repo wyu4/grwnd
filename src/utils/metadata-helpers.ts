@@ -13,12 +13,12 @@ export const createPageMetadata = (tabName: string | undefined) => {
     icons: [
       {
         rel: "icon",
-        url: "./grwnd-light.svg",
+        url: "/grwnd-light.svg",
         media: "(prefers-color-scheme: light)",
       },
       {
         rel: "icon",
-        url: "./grwnd-dark.svg",
+        url: "/grwnd-dark.svg",
         media: "(prefers-color-scheme: dark)",
       },
     ],
