@@ -1,6 +1,7 @@
 import { Lexend, Open_Sans, Source_Code_Pro } from "next/font/google";
 import "./css/globals.css";
 import { Metadata } from "next";
+import { createPageMetadata } from "@/utils/metadata-helpers";
 
 const lexend = Lexend({
   subsets: ["latin"],
@@ -20,23 +21,7 @@ const code = Source_Code_Pro({
   variable: "--font-code",
 });
 
-export const metadata: Metadata = {
-  title: "Feed | Grwnd",
-  description:
-    "A place for developers to post problems worth solving and projects worth knowing about.",
-  icons: [
-    {
-      rel: "icon",
-      url: "./grwnd-light.svg",
-      media: "(prefers-color-scheme: light)",
-    },
-    {
-      rel: "icon",
-      url: "./grwnd-dark.svg",
-      media: "(prefers-color-scheme: dark)",
-    },
-  ],
-};
+export const metadata = createPageMetadata(undefined);
 
 export default function RootLayout({
   children,

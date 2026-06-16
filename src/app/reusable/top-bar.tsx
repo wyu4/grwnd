@@ -5,33 +5,32 @@ import gsap from "gsap";
 import { signInGitHub } from "@/utils/authentication/client";
 import { useGSAP } from "@gsap/react";
 import { forwardRef, ReactNode, useRef, useState } from "react";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaUser } from "react-icons/fa";
+import { PageType } from "@/types/global";
 
-const TopBar = forwardRef<HTMLDivElement, { isLoggedIn: boolean }>(
-  ({ isLoggedIn }, fref) => {
-    const [authenticating, setAuthenticating] = useState(false);
+const TopBar = forwardRef<HTMLDivElement, PageType>(({ isLoggedIn }, fref) => {
+  const [authenticating, setAuthenticating] = useState(false);
 
-    return (
-      <div
-        ref={fref}
-        className="fixed z-100 bg-primary top-0 left-0 border-b border-font-secondary w-full p-2 flex flex-row justify-center items-center"
-      >
-        {!isLoggedIn && (
-          <LogInPrompt
-            onClick={async () => {
-              if (authenticating) return;
-              setAuthenticating(true);
-              await signInGitHub();
-              setAuthenticating(false);
-            }}
-            disabled={authenticating || isLoggedIn}
-          />
-        )}
-        {isLoggedIn && <AuthenticatedTopBar />}
-      </div>
-    );
-  },
-);
+  return (
+    <div
+      ref={fref}
+      className="fixed z-100 bg-primary top-0 left-0 border-b border-font-secondary w-full p-2 flex flex-row justify-center items-center"
+    >
+      {!isLoggedIn && (
+        <LogInPrompt
+          onClick={async () => {
+            if (authenticating) return;
+            setAuthenticating(true);
+            await signInGitHub();
+            setAuthenticating(false);
+          }}
+          disabled={authenticating || isLoggedIn}
+        />
+      )}
+      {isLoggedIn && <AuthenticatedTopBar />}
+    </div>
+  );
+});
 
 export default TopBar;
 
@@ -54,9 +53,12 @@ function LogInPrompt({ onClick, disabled }: { onClick: () => any; disabled: bool
 
 function AuthenticatedTopBar() {
   return (
-    <div className="relative flex flex-row justify-around items-center text-4xl gap-2">
+    <div className="relative flex flex-row justify-around items-center text-4xl gap-4">
       <TabButton href="/dashboard" name="Home">
         <FaHome />
+      </TabButton>
+      <TabButton href="/profile" name="Profile">
+        <FaUser />
       </TabButton>
     </div>
   );
