@@ -1,5 +1,5 @@
 import { UndraggableImage } from "@/app/reusable/Images";
-import { Elsie } from "next/font/google";
+import { calculateTimeElapse } from "@/utils/time-helpers";
 import { useEffect, useState } from "react";
 import { FaRegCalendar } from "react-icons/fa";
 
@@ -17,27 +17,8 @@ export default function FeedPost({
   const [timeElapsed, setTimeElapsed] = useState("loading...");
 
   useEffect(() => {
-    const formulate = (n: number, unit: string) => `${n} ${unit}${n > 1 ? "s" : ""} ago`;
-    const update = () => {
-      const seconds = Math.floor((Date.now() - uploadDate.getTime()) / 1000);
-      if (seconds <= 0) {
-        setTimeElapsed("now");
-      } else if (seconds < 60) {
-        setTimeElapsed(formulate(seconds, "second"));
-      } else if (seconds < 60 * 60) {
-        setTimeElapsed(formulate(Math.floor(seconds / 60), "minute"));
-      } else if (seconds < 60 * 60 * 24) {
-        setTimeElapsed(formulate(Math.floor(seconds / 60 / 60), "hour"));
-      } else if (seconds < 60 * 60 * 24 * 7) {
-        setTimeElapsed(formulate(Math.floor(seconds / 60 / 60 / 24), "day"));
-      } else if (seconds < 60 * 60 * 24 * 30) {
-        setTimeElapsed(formulate(Math.floor(seconds / 60 / 60 / 24 / 7), "week"));
-      } else if (seconds < 60 * 60 * 24 * 365) {
-        setTimeElapsed(formulate(Math.floor(seconds / 60 / 60 / 24 / 30), "month"));
-      } else {
-        setTimeElapsed(formulate(Math.floor(seconds / 60 / 60 / 24 / 365), "year"));
-      }
-    };
+    const update = () =>
+      setTimeElapsed(calculateTimeElapse(Date.now() - uploadDate.getMilliseconds()));
     update();
     const id = setInterval(update, 60 * 1000);
     return () => clearInterval(id);
