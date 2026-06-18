@@ -8,6 +8,7 @@ import { PageType } from "@/types/global";
 import LoadingScreen from "@/app/reusable/loading";
 
 const TestUser: PostAuthor = {
+  id: "skjdbkajlfbelkwjf",
   username: "null",
   icon: "https://avatars.githubusercontent.com/u/139521392?v=4",
   label: "CEO @ grwnd",
@@ -31,11 +32,7 @@ export default function DashboardPage({ isLoggedIn }: PageType) {
       style={{ paddingTop: topBarHeight }}
     >
       <LoadingScreen hidden={!loading} />
-      <TopBar
-        ref={topBarRef}
-        isLoggedIn={isLoggedIn}
-        onNavigate={() => setLoading(true)}
-      />
+      <TopBar ref={topBarRef} isLoggedIn={isLoggedIn} onNavigate={() => setLoading(true)} />
       <div className="relative flex flex-col justify-start items-center p-4 gap-2 w-full h-full md:w-1/2">
         <FeedPost
           author={TestUser}
