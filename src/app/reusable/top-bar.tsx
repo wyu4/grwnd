@@ -23,6 +23,7 @@ const TopBar = forwardRef<HTMLDivElement, PageType & { onNavigate?: () => void }
               if (authenticating) return;
               setAuthenticating(true);
               await signInGitHub();
+              onNavigate?.();
               setAuthenticating(false);
             }}
             disabled={authenticating || isLoggedIn}
