@@ -8,29 +8,31 @@ import { forwardRef, ReactNode, useRef, useState } from "react";
 import { FaHome, FaUser } from "react-icons/fa";
 import { PageType } from "@/types/global";
 
-const TopBar = forwardRef<HTMLDivElement, PageType>(({ isLoggedIn }, fref) => {
-  const [authenticating, setAuthenticating] = useState(false);
+const TopBar = forwardRef<HTMLDivElement, PageType & { onNavigate?: () => void }>(
+  ({ isLoggedIn, onNavigate }, fref) => {
+    const [authenticating, setAuthenticating] = useState(false);
 
-  return (
-    <div
-      ref={fref}
-      className="fixed z-100 bg-primary top-0 left-0 border-b border-font-secondary w-full p-2 flex flex-row justify-center items-center"
-    >
-      {!isLoggedIn && (
-        <LogInPrompt
-          onClick={async () => {
-            if (authenticating) return;
-            setAuthenticating(true);
-            await signInGitHub();
-            setAuthenticating(false);
-          }}
-          disabled={authenticating || isLoggedIn}
-        />
-      )}
-      {isLoggedIn && <AuthenticatedTopBar />}
-    </div>
-  );
-});
+    return (
+      <div
+        ref={fref}
+        className="fixed z-100 bg-primary top-0 left-0 border-b border-font-secondary w-full p-2 flex flex-row justify-center items-center"
+      >
+        {!isLoggedIn && (
+          <LogInPrompt
+            onClick={async () => {
+              if (authenticating) return;
+              setAuthenticating(true);
+              await signInGitHub();
+              setAuthenticating(false);
+            }}
+            disabled={authenticating || isLoggedIn}
+          />
+        )}
+        {isLoggedIn && <AuthenticatedTopBar onNavigate={onNavigate} />}
+      </div>
+    );
+  },
+);
 
 export default TopBar;
 
@@ -51,13 +53,13 @@ function LogInPrompt({ onClick, disabled }: { onClick: () => any; disabled: bool
   );
 }
 
-function AuthenticatedTopBar() {
+function AuthenticatedTopBar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="relative flex flex-row justify-around items-center text-4xl gap-4">
-      <TabButton href="/dashboard" name="Home">
+      <TabButton href="/dashboard" name="Home" onClick={onNavigate}>
         <FaHome />
       </TabButton>
-      <TabButton href="/profile" name="Profile">
+      <TabButton href="/profile" name="Profile" onClick={onNavigate}>
         <FaUser />
       </TabButton>
     </div>
@@ -68,10 +70,12 @@ function TabButton({
   href,
   name,
   children,
+  onClick,
 }: {
   name: string;
   href: string;
   children: ReactNode;
+  onClick?: () => void;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [hovering, setHovering] = useState(false);
@@ -88,6 +92,7 @@ function TabButton({
       ref={ref}
       className="relative flex flex-col justify-center items-center text-3xl gap-0.5 text-font-primary"
       href={href}
+      onClick={onClick}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >

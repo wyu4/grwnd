@@ -1,10 +1,11 @@
 "use client";
 
 import { UndraggableImage } from "@/app/reusable/Images";
+import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
 import { PageType } from "@/types/global";
 import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ProfilePageType = PageType & {
   data: PublicUser;
@@ -14,6 +15,7 @@ type ProfilePageType = PageType & {
 export default function ProfilePage({ isLoggedIn, data }: ProfilePageType) {
   const topBarRef = useRef<HTMLDivElement>(null);
   const [topBarHeight, setTopBarHeight] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useInnerWindowEffect(() => {
     if (topBarRef.current === null) return;
@@ -25,7 +27,12 @@ export default function ProfilePage({ isLoggedIn, data }: ProfilePageType) {
       className="relative bg-secondary h-screen flex flex-col justify-center items-center"
       style={{ paddingTop: topBarHeight }}
     >
-      <TopBar ref={topBarRef} isLoggedIn={isLoggedIn} />
+      <LoadingScreen hidden={!loading} />
+      <TopBar
+        ref={topBarRef}
+        isLoggedIn={isLoggedIn}
+        onNavigate={() => setLoading(true)}
+      />
       <div className="relative overflow-clip bg-primary border border-font-tertiary rounded-2xl flex flex-col w-1/2">
         <div className="relative flex flex-row h-50 w-full justify-center items-center overflow-clip z-1">
           <UndraggableImage
