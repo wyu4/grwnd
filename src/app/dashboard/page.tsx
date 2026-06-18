@@ -1,7 +1,6 @@
 import { auth } from "@/utils/authentication/server";
 import DashboardPage from "./components/dashboard-page";
 import { headers } from "next/headers";
-import { Metadata } from "next";
 import { createPageMetadata } from "@/utils/metadata-helpers";
 
 export default async function () {

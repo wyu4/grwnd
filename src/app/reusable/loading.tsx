@@ -4,7 +4,7 @@ import { DivType } from "@/types/global";
 import { useTimeline } from "@/utils/hooks/tween-hooks";
 import { bindRefAndForwardRef } from "@/utils/ref-helpers";
 import { useGSAP } from "@gsap/react";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useRef } from "react";
 import LogoComponent from "./logo";
 import gsap from "gsap";
 

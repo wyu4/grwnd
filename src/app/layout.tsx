@@ -1,6 +1,5 @@
 import { Lexend, Open_Sans, Source_Code_Pro } from "next/font/google";
 import "./css/globals.css";
-import { Metadata } from "next";
 import { createPageMetadata } from "@/utils/metadata-helpers";
 
 const lexend = Lexend({

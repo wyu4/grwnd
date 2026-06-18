@@ -5,7 +5,7 @@ import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
 import { PageType } from "@/types/global";
 import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 type ProfilePageType = PageType & {
   data: PublicUser;
