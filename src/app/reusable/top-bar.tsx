@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import { forwardRef, ReactNode, useRef, useState } from "react";
 import { FaHome, FaUser } from "react-icons/fa";
 import { PageType } from "@/types/global";
+import { FaCirclePlus } from "react-icons/fa6";
 
 const TopBar = forwardRef<HTMLDivElement, PageType & { onNavigate?: () => void }>(
   ({ isLoggedIn, onNavigate }, fref) => {
@@ -59,6 +60,9 @@ function AuthenticatedTopBar({ onNavigate }: { onNavigate?: () => void }) {
     <div className="relative flex flex-row justify-around items-center text-4xl gap-4">
       <TabButton href="/dashboard" name="Home" onClick={onNavigate}>
         <FaHome />
+      </TabButton>
+      <TabButton href="/new" name="Create" onClick={onNavigate}>
+        <FaCirclePlus />
       </TabButton>
       <TabButton href="/profile" name="Profile" onClick={onNavigate}>
         <FaUser />

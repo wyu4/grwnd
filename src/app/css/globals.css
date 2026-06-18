@@ -53,8 +53,16 @@ p {
   font-family: var(--font-open-sans), sans-serif;
 }
 
+form {
+  @apply relative overflow-clip bg-tertiary border border-font-tertiary rounded-2xl flex flex-col items-center justify-center w-1/2 p-4 gap-2;
+}
+
 input {
   @apply bg-primary w-full rounded-2xl px-2 py-1 border-0 border-font-primary text-center text-font-primary placeholder:text-font-secondary;
+}
+
+textarea {
+  @apply bg-primary w-full min-h-20 max-h-100 rounded-2xl px-2 py-1 border-0 border-font-primary text-start text-font-primary placeholder:text-font-secondary;
 }
 
 button {

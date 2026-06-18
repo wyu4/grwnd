@@ -1,8 +1,15 @@
+"use server";
+
 import { createClient, PostgrestError } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL } from "../environment";
 import { Database } from "@/types/database.types";
+import { auth } from "../authentication/server";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 type DatabaseClient = ReturnType<typeof createSupabase>;
+
+const defaultISO = new Date().toISOString();
 
 const supabaseError = (error: PostgrestError) =>
   console.error(`[POSTGRE-${error.code}] ${error.message}`);
@@ -14,9 +21,20 @@ const DEFAULT_PUBLIC_PROFILE: Database["public"]["Tables"]["public_profile"]["Ro
   last: "???",
   github_user: "",
   icon: "/grwnd-light.svg",
-  last_updated: new Date().toISOString(),
+  last_updated: defaultISO,
   role: "",
   default_name: "...",
+  last_post: defaultISO,
+};
+
+const generateRandomString = (length = 12) => {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+  return result;
 };
 
 /**
@@ -53,6 +71,35 @@ async function userExists(id: string, database: DatabaseClient | void) {
 }
 
 /**
+ * Checks if a session ID matches the user ID
+ * @param sessionId Session ID
+ * @param userId User ID
+ * @param database Optional pre-created database client
+ * @returns `true` or `false`
+ */
+async function sessionValid(
+  sessionId: string,
+  userId: string,
+  database: DatabaseClient | void,
+) {
+  if (!database) {
+    database = createSupabase();
+  }
+  const { data: session, error: sessionError } = await database
+    .from("session")
+    .select("*")
+    .eq("id", sessionId)
+    .single();
+
+  if (sessionError) {
+    supabaseError(sessionError);
+    return false;
+  }
+
+  return session.userId === userId;
+}
+
+/**
  * Get the public profile of a user
  * @param id ID to lookup
  * @param [skipUserCheck=false] Whether or not to skip the user existance check
@@ -75,4 +122,58 @@ export async function getPublicProfile(id: string, skipUserCheck: boolean = fals
   }
 
   return profile ?? DEFAULT_PUBLIC_PROFILE;
+}
+
+/**
+ * Creates a post under the authenticated user's name
+ * @param title Post title
+ * @param description Post description
+ * @param demo Post demo link
+ */
+export async function createPost(
+  title: string,
+  description: string,
+  demo: string | undefined,
+) {
+  if (!title || !description) return;
+  const h = await headers();
+  const session = await auth.api.getSession({
+    headers: h,
+  });
+  if (!session) return;
+
+  const sessionId = session.session.id;
+  const userId = session.user.id;
+  const database = createSupabase();
+
+  if (!(await sessionValid(sessionId, userId, database))) {
+    await auth.api.signOut({ headers: h });
+    redirect("/dashboard");
+  }
+
+  let postId: string | undefined = undefined;
+  while (postId === undefined) {
+    postId = generateRandomString();
+    const { data: exists } = await database
+      .from("post")
+      .select("*")
+      .eq("id", postId)
+      .maybeSingle();
+    if (exists) postId = undefined;
+  }
+
+  // const { error: postError } = await database.from("post").insert({
+  //   id: postId,
+  //   title: title,
+  //   description: description,
+  //   author: userId,
+  //   created_at: new Date().toISOString(),
+  //   demo: demo,
+  // });
+
+  // if (postError) {
+  //   supabaseError(postError);
+  //   return false;
+  // }
+  return true;
 }
