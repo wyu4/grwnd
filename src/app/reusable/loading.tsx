@@ -74,7 +74,6 @@ const LoadingScreen = forwardRef<
         className="w-15 aspect-square m-0"
       />
       <div className="bg-font-primary h-0.5 w-30" />
-      <p className="code mt-1">thinking</p>
     </div>
   );
 });
