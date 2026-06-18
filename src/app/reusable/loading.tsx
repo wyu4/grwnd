@@ -39,7 +39,7 @@ const LoadingScreen = forwardRef<
             const theta = ((rotation % 90) * Math.PI) / 180; // Angle between 0 and PI/2 in radians
             const side = gsap.getProperty(logo.current, "width") as number; // Width of the square
 
-            const diagonal = (side / 2) * Math.SQRT2; // Calculate the diagonal of the square
+            const diagonal = (side / 2) * Math.SQRT2; // Calculate the distance between a corner and the center of the square
             const h = diagonal * Math.sin(theta + Math.PI / 4); // Height of the center relative to ground
 
             const y = side / 2 - h; // Transformed height for the component
