@@ -9,7 +9,7 @@ export default function FeedPost({
   description,
   uploadDate,
 }: {
-  author: PublicUser;
+  author: PostAuthor;
   title: string;
   description: string;
   uploadDate: Date;

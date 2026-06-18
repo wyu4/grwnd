@@ -3,16 +3,17 @@
 import { UndraggableImage } from "@/app/reusable/Images";
 import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
+import { Database } from "@/types/database.types";
 import { PageType } from "@/types/global";
 import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
 import { useRef, useState } from "react";
 
 type ProfilePageType = PageType & {
-  data: PublicUser;
+  profile: Database["public"]["Tables"]["public_profile"]["Row"];
   isQuerier: boolean;
 };
 
-export default function ProfilePage({ isLoggedIn, data }: ProfilePageType) {
+export default function ProfilePage({ isLoggedIn, profile }: ProfilePageType) {
   const topBarRef = useRef<HTMLDivElement>(null);
   const [topBarHeight, setTopBarHeight] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -37,17 +38,17 @@ export default function ProfilePage({ isLoggedIn, data }: ProfilePageType) {
         <div className="relative flex flex-row h-50 w-full justify-center items-center overflow-clip z-1">
           <UndraggableImage
             className="aspect-square z-1 brightness-50 blur-lg w-full"
-            src={data.icon}
+            src={profile.icon}
           />
         </div>
         <div className="p-8 gap-4 z-2">
           <div className="relative w-40 rounded-full bg-primary grid place-items-center p-1 aspect-square -mt-35">
             <UndraggableImage
-              src={data.icon}
+              src={profile.icon}
               className="relative w-full rounded-full aspect-square"
             />
           </div>
-          <h1>{data.username}</h1>
+          <h1>{profile.default_name}</h1>
         </div>
       </div>
     </div>

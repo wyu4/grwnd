@@ -7,7 +7,7 @@ import FeedPost from "./feed-post";
 import { PageType } from "@/types/global";
 import LoadingScreen from "@/app/reusable/loading";
 
-const TestUser: PublicUser = {
+const TestUser: PostAuthor = {
   username: "null",
   icon: "https://avatars.githubusercontent.com/u/139521392?v=4",
   label: "CEO @ grwnd",
