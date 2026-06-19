@@ -62,6 +62,7 @@ export default function DashboardPage({ isLoggedIn }: PageType) {
                 title={p.title}
                 description={p.description}
                 uploadDate={new Date(p.created_at)}
+                onNavigate={() => setNavigating(true)}
               />
             );
           })}

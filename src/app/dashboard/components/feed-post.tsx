@@ -8,11 +8,13 @@ export default function FeedPost({
   title,
   description,
   uploadDate,
+  onNavigate,
 }: {
   author: PostAuthor;
   title: string;
   description: string;
   uploadDate: Date;
+  onNavigate: () => void;
 }) {
   const [timeElapsed, setTimeElapsed] = useState("loading...");
 
@@ -33,9 +35,9 @@ export default function FeedPost({
           className="aspect-square w-15 rounded-full"
         />
         <div className="relative flex flex-col justify-center items-start">
-          <p className="text-lg">
+          <a className="text-lg" href={"/profile/" + author.id} onClick={onNavigate}>
             <b>{author.username}</b>
-          </p>
+          </a>
           <p className="text-sm">{author.label}</p>
           <div className="text-sm text-font-secondary flex flex-row justify-start items-center gap-1">
             <FaRegCalendar /> <p>{timeElapsed}</p>
