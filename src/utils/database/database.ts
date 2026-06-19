@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient, PostgrestError } from "@supabase/supabase-js";
-import { SUPABASE_KEY, SUPABASE_URL } from "../environment";
+import { FEED_PAGE_SIZE, SUPABASE_KEY, SUPABASE_URL } from "../environment";
 import { Database } from "@/types/database.types";
 import { auth } from "../authentication/server";
 import { headers } from "next/headers";
@@ -105,8 +105,14 @@ async function sessionValid(
  * @param [skipUserCheck=false] Whether or not to skip the user existance check
  * @returns The user's public profile, or a default one if an error occurs
  */
-export async function getPublicProfile(id: string, skipUserCheck: boolean = false) {
-  const database = createSupabase();
+export async function getPublicProfile(
+  id: string,
+  skipUserCheck: boolean = false,
+  database: DatabaseClient | void,
+) {
+  if (!database) {
+    database = createSupabase();
+  }
 
   if (!skipUserCheck && !(await userExists(id, database))) return DEFAULT_PUBLIC_PROFILE;
 
@@ -135,12 +141,12 @@ export async function createPost(
   description: string,
   demo: string | undefined,
 ) {
-  if (!title || !description) return;
+  if (!title || !description) return false;
   const h = await headers();
   const session = await auth.api.getSession({
     headers: h,
   });
-  if (!session) return;
+  if (!session) return false;
 
   const sessionId = session.session.id;
   const userId = session.user.id;
@@ -162,18 +168,77 @@ export async function createPost(
     if (exists) postId = undefined;
   }
 
-  // const { error: postError } = await database.from("post").insert({
-  //   id: postId,
-  //   title: title,
-  //   description: description,
-  //   author: userId,
-  //   created_at: new Date().toISOString(),
-  //   demo: demo,
-  // });
+  const { error: postError } = await database.from("post").insert({
+    id: postId,
+    title: title,
+    description: description,
+    author: userId,
+    created_at: new Date().toISOString(),
+    demo: demo,
+  });
 
-  // if (postError) {
-  //   supabaseError(postError);
-  //   return false;
-  // }
+  if (postError) {
+    supabaseError(postError);
+    return false;
+  }
   return true;
+}
+
+/**
+ * Get a list of posts and the authors
+ * @param page Page number
+ * @returns Posts and authors
+ */
+export async function getPosts(page: number = 0) {
+  const database = createSupabase();
+  const from = page * FEED_PAGE_SIZE;
+  const to = from + FEED_PAGE_SIZE - 1;
+
+  const {
+    data: posts,
+    error: postsError,
+    count: postsCount,
+  } = await database
+    .from("post")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (postsError) {
+    supabaseError(postsError);
+    return;
+  }
+
+  const authors: Record<string, Omit<PostAuthor, "id">> = {};
+  for (const p of posts) {
+    const id = p.author;
+    if (!id || authors[id]) continue;
+    const { data, error } = await database
+      .from("public_profile")
+      .select("default_name, icon, role")
+      .eq("id", id)
+      .single();
+    if (error) {
+      supabaseError(error);
+      continue;
+    }
+    if (!data) {
+      authors[id] = {
+        icon: "/grwnd-light.svg",
+        label: "...",
+        username: "...",
+      };
+      continue;
+    }
+    authors[id] = {
+      icon: data.icon,
+      label: data.role ?? "",
+      username: data.default_name,
+    };
+  }
+
+  return {
+    posts: posts as Database["public"]["Tables"]["post"]["Row"][],
+    authors: authors,
+  };
 }

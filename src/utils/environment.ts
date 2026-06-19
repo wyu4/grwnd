@@ -3,6 +3,7 @@ export const GITHUB_OAUTH_SECRET = process.env.GITHUB_OAUTH_SECRET ?? "";
 export const DATABASE_CONNECTION_URL = process.env.DATABASE_CONNECTION_URL ?? "";
 export const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
 export const SUPABASE_KEY = process.env.SUPABASE_KEY ?? "";
+export const FEED_PAGE_SIZE = +(process.env.FEED_PAGE_SIZE ?? "15");
 
 /**
  * Get the value of a CSS variable

@@ -9,12 +9,11 @@ import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
 import { useRef, useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 
-export default function PostPage() {
+export default function CreatePage() {
   const topBarRef = useRef<HTMLDivElement>(null);
   const [topBarHeight, setTopBarHeight] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
 
   const submit = async (event: React.SubmitEvent<HTMLFormElement>) => {

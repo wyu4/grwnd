@@ -18,7 +18,7 @@ export default function FeedPost({
 
   useEffect(() => {
     const update = () =>
-      setTimeElapsed(calculateTimeElapse(Date.now() - uploadDate.getMilliseconds()));
+      setTimeElapsed(calculateTimeElapse(Date.now() - uploadDate.getTime()));
     update();
     const id = setInterval(update, 60 * 1000);
     return () => clearInterval(id);
@@ -47,7 +47,9 @@ export default function FeedPost({
         <h1 aria-disabled={true}>
           <b>{title}</b>
         </h1>
-        <p>{description}</p>
+        <p>
+          {description.length > 100 ? description.slice(0, 100) + "..." : description}
+        </p>
       </div>
     </div>
   );
