@@ -5,14 +5,11 @@ import BlackButton from "@/app/reusable/Buttons";
 import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
 import { createPost } from "@/utils/database/database";
-import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
 import { redirect } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 
 export default function CreatePage() {
-  const topBarRef = useRef<HTMLDivElement>(null);
-  const [topBarHeight, setTopBarHeight] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const [creating, setCreating] = useState(false);
@@ -41,17 +38,10 @@ export default function CreatePage() {
     redirect("/dashboard");
   };
 
-  useInnerWindowEffect(() => {
-    if (topBarRef.current === null) return;
-    setTopBarHeight(topBarRef.current.getBoundingClientRect().height);
-  }, []);
   return (
-    <div
-      className="relative bg-secondary min-h-screen w-full flex flex-col items-center justify-start"
-      style={{ paddingTop: topBarHeight }}
-    >
+    <div className="relative bg-secondary min-h-screen w-full flex flex-col items-center justify-start">
       <LoadingScreen hidden={!loading} />
-      <TopBar ref={topBarRef} isLoggedIn={true} onNavigate={() => setLoading(true)} />
+      <TopBar isLoggedIn={true} onNavigate={() => setLoading(true)} />
       <GlowBackground
         className="absolute top-0 left-0 w-full h-full"
         cssVariable="--font-tertiary"

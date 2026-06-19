@@ -4,39 +4,35 @@ import BlackButton from "@/app/reusable/Buttons";
 import gsap from "gsap";
 import { signInGitHub } from "@/utils/authentication/client";
 import { useGSAP } from "@gsap/react";
-import { forwardRef, ReactNode, useRef, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { FaHome, FaUser } from "react-icons/fa";
 import { PageType } from "@/types/global";
 import { FaCirclePlus } from "react-icons/fa6";
 
-const TopBar = forwardRef<HTMLDivElement, PageType & { onNavigate?: () => void }>(
-  ({ isLoggedIn, onNavigate }, fref) => {
-    const [authenticating, setAuthenticating] = useState(false);
+export default function TopBar({
+  isLoggedIn,
+  onNavigate,
+}: PageType & { onNavigate?: () => void }) {
+  const [authenticating, setAuthenticating] = useState(false);
 
-    return (
-      <div
-        ref={fref}
-        className="fixed z-100 bg-primary top-0 left-0 border-b border-font-secondary w-full p-2 flex flex-row justify-center items-center"
-      >
-        {!isLoggedIn && (
-          <LogInPrompt
-            onClick={async () => {
-              if (authenticating) return;
-              setAuthenticating(true);
-              await signInGitHub();
-              onNavigate?.();
-              setAuthenticating(false);
-            }}
-            disabled={authenticating || isLoggedIn}
-          />
-        )}
-        {isLoggedIn && <AuthenticatedTopBar onNavigate={onNavigate} />}
-      </div>
-    );
-  },
-);
-
-export default TopBar;
+  return (
+    <div className="sticky z-100 bg-primary top-0 left-0 border-b border-font-secondary w-full p-2 flex flex-row justify-center items-center shrink-0">
+      {!isLoggedIn && (
+        <LogInPrompt
+          onClick={async () => {
+            if (authenticating) return;
+            setAuthenticating(true);
+            await signInGitHub();
+            onNavigate?.();
+            setAuthenticating(false);
+          }}
+          disabled={authenticating || isLoggedIn}
+        />
+      )}
+      {isLoggedIn && <AuthenticatedTopBar onNavigate={onNavigate} />}
+    </div>
+  );
+}
 
 function LogInPrompt({ onClick, disabled }: { onClick: () => any; disabled: boolean }) {
   return (

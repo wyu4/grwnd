@@ -35,7 +35,12 @@ export default function FeedPost({
           className="aspect-square w-15 rounded-full"
         />
         <div className="relative flex flex-col justify-center items-start">
-          <a className="text-lg" href={"/profile/" + author.id} onClick={onNavigate}>
+          <a
+            className="text-lg"
+            href={"/profile/" + author.id}
+            onClick={onNavigate}
+            aria-disabled={true}
+          >
             <b>{author.username}</b>
           </a>
           <p className="text-sm">{author.label}</p>

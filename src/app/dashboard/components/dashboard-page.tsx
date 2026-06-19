@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import TopBar from "../../reusable/top-bar";
-import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
 import FeedPost from "./feed-post";
 import { PageType } from "@/types/global";
 import LoadingScreen from "@/app/reusable/loading";
@@ -19,16 +18,9 @@ const TestUser: PostAuthor = {
 const TestTime = new Date(1781413718000);
 
 export default function DashboardPage({ isLoggedIn }: PageType) {
-  const topBarRef = useRef<HTMLDivElement>(null);
-  const [topBarHeight, setTopBarHeight] = useState(0);
   const [navigating, setNavigating] = useState(false);
   const [posts, setPosts] = useState<Database["public"]["Tables"]["post"]["Row"][]>();
   const [authors, setAuthors] = useState<Record<string, Omit<PostAuthor, "id">>>();
-
-  useInnerWindowEffect(() => {
-    if (topBarRef.current === null) return;
-    setTopBarHeight(topBarRef.current.getBoundingClientRect().height);
-  }, []);
 
   useEffect(() => {
     getPosts(0).then((result) => {
@@ -40,17 +32,16 @@ export default function DashboardPage({ isLoggedIn }: PageType) {
   }, []);
 
   return (
-    <div
-      className="relative bg-secondary min-h-screen flex flex-col justify-start items-center overflow-hidden"
-      style={{ paddingTop: topBarHeight }}
-    >
+    <div className="relative bg-secondary min-h-screen flex flex-col justify-start items-center">
       <LoadingScreen hidden={!navigating} />
-      <TopBar
-        ref={topBarRef}
-        isLoggedIn={isLoggedIn}
-        onNavigate={() => setNavigating(true)}
-      />
-      <div className="relative flex flex-col justify-start items-center p-4 gap-2 w-full h-full md:w-1/2">
+      <TopBar isLoggedIn={isLoggedIn} onNavigate={() => setNavigating(true)} />
+      <div className="relative z-15 flex flex-1 flex-col justify-start items-center p-4 gap-2 w-full md:w-1/2">
+        <LoadingScreen
+          className="w-full flex-1 bg-inherit!"
+          customSize={true}
+          duration={0.2}
+          hidden={posts && posts.length > 0}
+        />
         {posts &&
           authors &&
           posts.map((p) => {

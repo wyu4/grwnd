@@ -8,12 +8,10 @@ import { forwardRef, useRef } from "react";
 import LogoComponent from "./logo";
 import gsap from "gsap";
 
-const ANIM_DUR = 0.6;
-
 const LoadingScreen = forwardRef<
   HTMLDivElement,
-  Omit<DivType, "children"> & { visible?: boolean }
->(({ className, hidden = false, ...props }, fref) => {
+  Omit<DivType, "children"> & { customSize?: boolean; duration?: number }
+>(({ className, hidden = false, duration = 0.6, customSize = false, ...props }, fref) => {
   const screen = useRef<HTMLDivElement>(null);
   const logo = useRef<SVGSVGElement>(null);
   const timeline = useTimeline();
@@ -29,7 +27,7 @@ const LoadingScreen = forwardRef<
         logo.current,
         {
           rotation: "+=90",
-          duration: ANIM_DUR,
+          duration: duration,
           ease: "power2.in",
           repeat: -1,
           repeatRefresh: true,
@@ -62,7 +60,7 @@ const LoadingScreen = forwardRef<
       ref={(node) => bindRefAndForwardRef(node, fref, screen)}
       hidden={hidden}
       className={
-        "loading-screen fixed z-102 w-full h-full top-0 left-0 bg-primary flex flex-col items-center justify-center " +
+        `${!customSize ? "fixed z-102 w-full h-full top-0 left-0" : ""} bg-primary flex flex-col items-center justify-center ` +
         className
       }
       {...props}
