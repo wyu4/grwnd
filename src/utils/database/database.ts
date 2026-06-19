@@ -96,7 +96,7 @@ async function sessionValid(
     return false;
   }
 
-  return session.userId === userId;
+  return session.userId === userId && new Date(session.expiresAt).getTime() >= Date.now();
 }
 
 /**
