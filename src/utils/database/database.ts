@@ -105,14 +105,8 @@ async function sessionValid(
  * @param [skipUserCheck=false] Whether or not to skip the user existance check
  * @returns The user's public profile, or a default one if an error occurs
  */
-export async function getPublicProfile(
-  id: string,
-  skipUserCheck: boolean = false,
-  database: DatabaseClient | void,
-) {
-  if (!database) {
-    database = createSupabase();
-  }
+export async function getPublicProfile(id: string, skipUserCheck: boolean = false) {
+  const database = createSupabase();
 
   if (!skipUserCheck && !(await userExists(id, database))) return DEFAULT_PUBLIC_PROFILE;
 
