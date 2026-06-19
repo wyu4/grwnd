@@ -6,6 +6,7 @@ import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
 import { createPost } from "@/utils/database/database";
 import { useInnerWindowEffect } from "@/utils/hooks/window-hooks";
+import { redirect } from "next/navigation";
 import { useRef, useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 
@@ -32,7 +33,12 @@ export default function CreatePage() {
       return;
     }
 
-    await createPost(title, description, demo);
+    const status = await createPost(title, description, demo);
+    if (!status) {
+      setCreating(false);
+      return;
+    }
+    redirect("/dashboard");
   };
 
   useInnerWindowEffect(() => {
@@ -53,8 +59,8 @@ export default function CreatePage() {
       />
       <div className="relative w-full flex flex-col items-center justify-start gap-4 p-8">
         <form onSubmit={submit}>
-          <input name="title" type="text" placeholder="What is your project?" />
-          <textarea name="description" placeholder="Expand on your idea." />
+          <input required name="title" type="text" placeholder="What is your project?" />
+          <textarea required name="description" placeholder="Expand on your idea." />
           <OptionalLink name="link" placeholder="https://" text="Website / Demo" />
           <BlackButton
             className="relative shrink w-20 grid place-items-center"
