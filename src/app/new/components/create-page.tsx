@@ -42,11 +42,11 @@ export default function CreatePage() {
     <div className="relative bg-secondary min-h-screen w-full flex flex-col items-center justify-start">
       <LoadingScreen hidden={!loading} />
       <TopBar isLoggedIn={true} onNavigate={() => setLoading(true)} />
-      <GlowBackground
+      {/* <GlowBackground
         className="absolute top-0 left-0 w-full h-full"
         cssVariable="--font-tertiary"
         count={5}
-      />
+      /> */}
       <div className="relative w-full flex flex-col items-center justify-start gap-4 p-8">
         <form onSubmit={submit}>
           <input required name="title" type="text" placeholder="What is your project?" />

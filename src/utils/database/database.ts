@@ -27,6 +27,25 @@ const DEFAULT_PUBLIC_PROFILE: Database["public"]["Tables"]["public_profile"]["Ro
   last_post: defaultISO,
 };
 
+/**
+ * Checks if a URL is valid (http or https protocol)
+ * @param s Unknown URL
+ * @returns Boolean value
+ */
+const validateURL = (s: string) => {
+  try {
+    const url = new URL(s);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+};
+
+/**
+ * Generates a random string (numbers and letters) of n length. Can be used to generate keys or IDs.
+ * @param length n
+ * @returns Random string
+ */
 const generateRandomString = (length = 12) => {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
