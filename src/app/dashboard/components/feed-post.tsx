@@ -44,7 +44,10 @@ export default function FeedPost({
             <b>{author.username}</b>
           </a>
           <p className="text-sm">{author.label}</p>
-          <div className="text-sm text-font-secondary flex flex-row justify-start items-center gap-1">
+          <div
+            title={`Uploaded ${uploadDate.toLocaleDateString()}`}
+            className="text-sm text-font-secondary flex flex-row justify-start items-center gap-1"
+          >
             <FaRegCalendar /> <p>{timeElapsed}</p>
           </div>
         </div>
