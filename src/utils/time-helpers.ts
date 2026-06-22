@@ -32,3 +32,16 @@ export function calculateTimeElapse(deltaMillis: number) {
     return formulateTimeElapse(Math.floor(seconds / 60 / 60 / 24 / 365), "year");
   }
 }
+
+/**
+ * Convert a date to a human readable string
+ * @param date Date object
+ * @returns Readable date
+ */
+export function convertDateToReadable(date: Date) {
+  return date.toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}

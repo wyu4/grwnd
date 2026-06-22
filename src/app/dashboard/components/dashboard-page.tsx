@@ -49,6 +49,7 @@ export default function DashboardPage({ isLoggedIn }: PageType) {
             return (
               <FeedPost
                 key={"feed-" + p.id}
+                id={p.id}
                 author={{ id: p.author ?? "", ...u }}
                 title={p.title}
                 description={p.description}

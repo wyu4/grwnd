@@ -1,6 +1,5 @@
 "use client";
 
-import BlackButton from "@/app/reusable/Buttons";
 import gsap from "gsap";
 import { signInGitHub } from "@/utils/authentication/client";
 import { useGSAP } from "@gsap/react";
@@ -8,6 +7,7 @@ import { ReactNode, useRef, useState } from "react";
 import { FaHome, FaUser } from "react-icons/fa";
 import { PageType } from "@/types/global";
 import { FaCirclePlus } from "react-icons/fa6";
+import { BlackButton } from "./Buttons";
 
 export default function TopBar({
   isLoggedIn,

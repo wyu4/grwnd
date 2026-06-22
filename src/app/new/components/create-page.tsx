@@ -1,7 +1,7 @@
 "use client";
 
 import { GlowBackground } from "@/app/reusable/Backgrounds";
-import BlackButton from "@/app/reusable/Buttons";
+import { BlackButton } from "@/app/reusable/Buttons";
 import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
 import { createPost } from "@/utils/database/database";

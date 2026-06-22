@@ -1,15 +1,18 @@
+import { PushLink } from "@/app/reusable/Buttons";
 import { UndraggableImage } from "@/app/reusable/Images";
-import { calculateTimeElapse } from "@/utils/time-helpers";
+import { calculateTimeElapse, convertDateToReadable } from "@/utils/time-helpers";
 import { useEffect, useState } from "react";
-import { FaRegCalendar } from "react-icons/fa";
+import { FaCopy, FaExternalLinkAlt, FaRegCalendar } from "react-icons/fa";
 
 export default function FeedPost({
+  id,
   author,
   title,
   description,
   uploadDate,
   onNavigate,
 }: {
+  id: string;
   author: PostAuthor;
   title: string;
   description: string;
@@ -17,6 +20,7 @@ export default function FeedPost({
   onNavigate: () => void;
 }) {
   const [timeElapsed, setTimeElapsed] = useState("loading...");
+  const postURL = `/post/${id}`;
 
   useEffect(() => {
     const update = () =>
@@ -45,7 +49,7 @@ export default function FeedPost({
           </a>
           <p className="text-sm">{author.label}</p>
           <div
-            title={`Uploaded ${uploadDate.toLocaleDateString()}`}
+            title={`Uploaded ${convertDateToReadable(uploadDate)}`}
             className="text-sm text-font-secondary flex flex-row justify-start items-center gap-1"
           >
             <FaRegCalendar /> <p>{timeElapsed}</p>
@@ -58,8 +62,13 @@ export default function FeedPost({
           <b>{title}</b>
         </h1>
         <p>
-          {description.length > 100 ? description.slice(0, 100) + "..." : description}
+          {description.length > 200 ? description.slice(0, 200) + "..." : description}
         </p>
+        <div className="relative w-full flex flex-row-reverse justify-start items-center gap-2">
+          <PushLink onClick={onNavigate} href={postURL}>
+            <FaExternalLinkAlt />
+          </PushLink>
+        </div>
       </div>
     </div>
   );

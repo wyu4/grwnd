@@ -198,6 +198,45 @@ export async function createPost(
 }
 
 /**
+ * Get a specific post from its ID
+ * @param id Post ID
+ * @returns Information about the post and its author
+ */
+export async function getPost(id: string) {
+  const database = createSupabase();
+  const { data: post, error: postError } = await database
+    .from("post")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (postError) {
+    supabaseError(postError);
+    return null;
+  }
+
+  if (!post || !post.author) return null;
+
+  const { data: author, error: authorError } = await database
+    .from("public_profile")
+    .select("default_name, icon, role")
+    .eq("id", post.author)
+    .single();
+
+  if (authorError) {
+    supabaseError(authorError);
+    return null;
+  }
+
+  if (!author) return null;
+
+  return {
+    post: post as Database["public"]["Tables"]["post"]["Row"],
+    author: author,
+  };
+}
+
+/**
  * Get a list of posts and the authors
  * @param page Page number
  * @returns Posts and authors
@@ -207,11 +246,7 @@ export async function getPosts(page: number = 0) {
   const from = page * FEED_PAGE_SIZE;
   const to = from + FEED_PAGE_SIZE - 1;
 
-  const {
-    data: posts,
-    error: postsError,
-    count: postsCount,
-  } = await database
+  const { data: posts, error: postsError } = await database
     .from("post")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })

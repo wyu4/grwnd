@@ -1,9 +1,9 @@
 "use client";
 
-import { ButtonType } from "@/types/global";
+import { AnchorType, ButtonType } from "@/types/global";
 import { forwardRef } from "react";
 
-const BlackButton = forwardRef<HTMLButtonElement, ButtonType>(
+export const BlackButton = forwardRef<HTMLButtonElement, ButtonType>(
   ({ className, children, ...props }, fref) => {
     return (
       <button
@@ -17,4 +17,16 @@ const BlackButton = forwardRef<HTMLButtonElement, ButtonType>(
   },
 );
 
-export default BlackButton;
+export const PushLink = forwardRef<HTMLAnchorElement, AnchorType>(
+  ({ className, children, ...props }, fref) => {
+    return (
+      <a
+        ref={fref}
+        className={`bg-tertiary aspect-square text-font-primary border border-font-tertiary rounded text-center p-3 flex flex-col items-center ${className}`}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
+);
