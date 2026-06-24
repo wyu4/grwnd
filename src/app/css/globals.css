@@ -62,11 +62,11 @@ p {
 } */
 
 input {
-  @apply bg-primary w-full rounded-2xl px-2 py-1 border-0 border-font-primary text-center text-font-primary placeholder:text-font-secondary;
+  @apply w-full rounded-2xl px-2 py-1 border-0 border-font-primary text-center text-font-primary placeholder:text-font-secondary;
 }
 
 textarea {
-  @apply bg-primary w-full min-h-20 max-h-100 rounded-2xl px-2 py-1 border-0 border-font-primary text-start text-font-primary placeholder:text-font-secondary;
+  @apply w-full min-h-50 max-h-100 rounded-2xl px-2 py-1 border-0 border-font-primary text-start text-font-primary placeholder:text-font-secondary;
 }
 
 button {

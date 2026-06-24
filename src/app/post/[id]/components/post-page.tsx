@@ -126,6 +126,7 @@ function Post({
           <h1 className="text-center">{title}</h1>
         ) : (
           <input
+            required
             name="title"
             type="text"
             defaultValue={title}
@@ -181,7 +182,7 @@ function Post({
             name="description"
             placeholder="Expand on your idea."
             defaultValue={description}
-            className="bg-secondary! text-xl min-h-50!"
+            className="bg-secondary! text-xl"
           />
         )}
 

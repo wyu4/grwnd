@@ -50,10 +50,21 @@ export default function CreatePage() {
       <div className="relative w-full flex flex-col items-center justify-start gap-4 p-8">
         <form
           onSubmit={submit}
-          className="relative overflow-clip bg-tertiary border border-font-tertiary rounded-2xl flex flex-col items-center justify-center w-1/2 p-4 gap-2"
+          className="relative text-xl p-8 gap-4 bg-primary border border-font-tertiary rounded-2xl flex flex-col justify-start items-center overflow-clip md:w-1/2"
         >
-          <input required name="title" type="text" placeholder="What is your project?" />
-          <textarea required name="description" placeholder="Expand on your idea." />
+          <input
+            required
+            className="bg-secondary text-3xl font-bold"
+            name="title"
+            type="text"
+            placeholder="What is your project?"
+          />
+          <textarea
+            required
+            className="bg-secondary!"
+            name="description"
+            placeholder="Expand on your idea."
+          />
           <OptionalLink name="link" placeholder="https://" text="Website / Demo" />
           <BlackButton
             className="relative shrink w-20 grid place-items-center"
@@ -80,7 +91,11 @@ function OptionalLink({
   return (
     <div className="relative w-full flex flex-col justify-center items-start py-4 gap-2">
       <p>{`${text} (optional)`}</p>
-      <input className="max-w-1/2 text-start!" name={name} placeholder={placeholder} />
+      <input
+        className="max-w-1/2 bg-secondary! text-start!"
+        name={name}
+        placeholder={placeholder}
+      />
     </div>
   );
 }
