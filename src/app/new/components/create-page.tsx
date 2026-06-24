@@ -30,12 +30,12 @@ export default function CreatePage() {
       return;
     }
 
-    const status = await createPost(title, description, demo);
-    if (!status) {
+    const id = await createPost(title, description, demo);
+    if (!id) {
       setCreating(false);
       return;
     }
-    redirect("/dashboard");
+    redirect(`/post/${id}`);
   };
 
   return (
@@ -48,7 +48,10 @@ export default function CreatePage() {
         count={5}
       /> */}
       <div className="relative w-full flex flex-col items-center justify-start gap-4 p-8">
-        <form onSubmit={submit}>
+        <form
+          onSubmit={submit}
+          className="relative overflow-clip bg-tertiary border border-font-tertiary rounded-2xl flex flex-col items-center justify-center w-1/2 p-4 gap-2"
+        >
           <input required name="title" type="text" placeholder="What is your project?" />
           <textarea required name="description" placeholder="Expand on your idea." />
           <OptionalLink name="link" placeholder="https://" text="Website / Demo" />

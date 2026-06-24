@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { createPageMetadata } from "@/utils/metadata-helpers";
 import { getPost } from "@/utils/database/database";
 import PostPage from "./components/post-page";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -14,20 +15,29 @@ type Result = {
   postData: Awaited<ReturnType<typeof getPost>>;
 };
 
-async function getData({ params }: Props): Promise<Result> {
+async function getData({ params }: Props): Promise<Result | undefined> {
   const session = await auth.api.getSession({ headers: await headers() });
   const { id: queriedId } = await params;
   const loggedIn = session !== null;
 
+  const postData = await getPost(queriedId);
+
+  if (!postData) {
+    return;
+  }
+
   return {
     isLoggedIn: loggedIn,
-    isQuerier: loggedIn && queriedId === session.user.id,
-    postData: await getPost(queriedId),
+    isQuerier: loggedIn && postData.post.author === session.user.id,
+    postData: postData,
   };
 }
 
 export default async function (props: Props) {
   const result = await getData(props);
+  if (!result) {
+    notFound();
+  }
   return (
     <PostPage
       isLoggedIn={result.isLoggedIn}

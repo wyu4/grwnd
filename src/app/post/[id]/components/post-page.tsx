@@ -1,12 +1,15 @@
 "use client";
 
+import { BlackButton, PushButton, PushLink } from "@/app/reusable/Buttons";
 import { UndraggableImage } from "@/app/reusable/Images";
 import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
-import { getPost } from "@/utils/database/database";
+import { getPost, updatePost } from "@/utils/database/database";
 import { calculateTimeElapse, convertDateToReadable } from "@/utils/time-helpers";
-import { useEffect, useRef, useState } from "react";
-import { FaRegCalendar } from "react-icons/fa";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { FaCheck, FaEdit, FaLink, FaRegCalendar } from "react-icons/fa";
+import { FaTrashCan } from "react-icons/fa6";
+import { MdCancel } from "react-icons/md";
 
 type PostPageType = {
   isLoggedIn: boolean;
@@ -30,9 +33,11 @@ export default function PostPage({ isLoggedIn, isQuerier, postData }: PostPageTy
       {!!postData && (
         <div className="relative w-full h-full flex flex-col justify-center items-center p-4">
           <Post
+            postId={post.id}
+            editable={isQuerier}
             author={{
               icon: author.icon,
-              id: post.id,
+              id: post.author ?? "",
               label: author.role ?? "",
               username: author.default_name,
             }}
@@ -40,6 +45,8 @@ export default function PostPage({ isLoggedIn, isQuerier, postData }: PostPageTy
             description={post.description}
             onNavigate={onNavigate}
             uploadDate={uploadDate}
+            link={post.demo ?? undefined}
+            repo={post.repo ?? undefined}
           />
         </div>
       )}
@@ -48,19 +55,53 @@ export default function PostPage({ isLoggedIn, isQuerier, postData }: PostPageTy
 }
 
 function Post({
+  postId,
   author,
   title,
   description,
   uploadDate,
+  link,
+  repo,
+  editable,
   onNavigate,
 }: {
+  postId: string;
   author: PostAuthor;
   title: string;
   description: string;
   uploadDate: Date;
+  link?: string;
+  repo?: string;
+  editable: boolean;
   onNavigate: () => void;
 }) {
   const [timeElapsed, setTimeElapsed] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  const update = async (event: React.SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (updating) return;
+    setUpdating(true);
+
+    const data = new FormData(event.currentTarget);
+
+    const title = data.get("title")?.toString();
+    const description = data.get("description")?.toString();
+    const demo = data.get("link")?.toString();
+
+    if (!title || !description) {
+      setUpdating(false);
+      return;
+    }
+
+    const status = await updatePost(postId, title, description, demo);
+    if (!status) {
+      setUpdating(false);
+      return;
+    }
+    window.location.reload();
+  };
 
   useEffect(() => {
     const update = () =>
@@ -70,9 +111,36 @@ function Post({
     return () => clearInterval(id);
   }, [uploadDate]);
   return (
-    <div className="relative bg-primary border border-font-tertiary rounded-2xl flex flex-col justify-start items-center overflow-clip md:w-1/2">
-      <div className="relative w-full bg-inherit rounded-t-2xl pt-4 z-10">
-        <h1 className="w-full text-center">{title}</h1>
+    <form
+      className="relative bg-primary border border-font-tertiary rounded-2xl flex flex-col justify-start items-center overflow-clip md:w-1/2"
+      onReset={(e) => {
+        e.preventDefault();
+        if (updating) return;
+        setEditing(false);
+      }}
+      onSubmit={update}
+    >
+      <LoadingScreen hidden={!updating} />
+      <div className="relative w-full bg-inherit rounded-t-2xl p-4 z-10 flex flex-col justify-center items-center gap-1">
+        {!editing ? (
+          <h1 className="text-center">{title}</h1>
+        ) : (
+          <input
+            name="title"
+            type="text"
+            defaultValue={title}
+            placeholder="What is your project?"
+            className="bg-secondary! font-bold text-3xl"
+          />
+        )}
+        {editable && !editing && (
+          <PushButton
+            onClick={() => setEditing(true)}
+            className="text-xl aspect-auto! w-40! h-10! p-2! rounded-full!"
+          >
+            <FaEdit />
+          </PushButton>
+        )}
       </div>
 
       <div className="relative flex flex-col justify-start items-center w-full px-8 py-4 gap-2 z-5">
@@ -101,8 +169,112 @@ function Post({
           </div>
         </div>
         <div className="relative bg-font-secondary w-full h-px" />
-        <p className="text-xl w-full">{description}</p>
+        {!editing ? (
+          description.split("\n").map((paragraph, i) => (
+            <p className="text-xl w-full" key={`par-${i}`}>
+              {paragraph}
+            </p>
+          ))
+        ) : (
+          <textarea
+            required
+            name="description"
+            placeholder="Expand on your idea."
+            defaultValue={description}
+            className="bg-secondary! text-xl min-h-50!"
+          />
+        )}
+
+        {!editing ? (
+          <div className="relative flex flex-row justify-center items-center w-full">
+            <PostLink name="Demo" link={link} children={<FaLink />} />
+            <PostLink name="GitHub" link={repo} children={<FaLink />} />
+          </div>
+        ) : (
+          <>
+            <div className="relative flex flex-col justify-center items-center w-full">
+              <OptionalLink
+                name="link"
+                placeholder="https://"
+                text="Website / Demo"
+                defaultValue={link}
+              />
+            </div>
+            <div className="relative mt-10 flex flex-row justify-between items-center w-full">
+              <BlackButton className="relative bg-delete! shrink w-20 h-10 grid place-items-center">
+                <FaTrashCan />
+              </BlackButton>
+              <div className="relative flex flex-row justify-center items-center gap-2">
+                <BlackButton
+                  className="relative shrink w-20 h-10 grid place-items-center"
+                  type="reset"
+                >
+                  <MdCancel />
+                </BlackButton>
+                <BlackButton
+                  className="relative shrink w-20 h-10 grid place-items-center"
+                  type="submit"
+                >
+                  <FaCheck />
+                </BlackButton>
+              </div>
+            </div>
+          </>
+        )}
       </div>
+    </form>
+  );
+}
+
+function PostLink({
+  name,
+  link,
+  children,
+}: {
+  link?: string;
+  name: string;
+  children?: ReactNode;
+}) {
+  return (
+    <>
+      {link && (
+        <div className="relative flex flex-col items-center justify-start gap-2 text-xl">
+          <p>
+            <b>{name}</b>
+          </p>
+          <PushLink
+            href={link}
+            target="_blank"
+            className="aspect-auto! w-20! h-10! p-2! rounded-full!"
+          >
+            {children}
+          </PushLink>
+        </div>
+      )}
+    </>
+  );
+}
+
+function OptionalLink({
+  name,
+  text,
+  defaultValue,
+  placeholder,
+}: {
+  name: string;
+  text: string;
+  defaultValue?: string;
+  placeholder: string;
+}) {
+  return (
+    <div className="relative w-full flex flex-col justify-center items-start py-4 gap-2 text-xl">
+      <p>{`${text} (optional)`}</p>
+      <input
+        className="w-70! bg-secondary! text-start!"
+        name={name}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+      />
     </div>
   );
 }

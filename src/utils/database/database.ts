@@ -194,6 +194,68 @@ export async function createPost(
     supabaseError(postError);
     return false;
   }
+  return postId;
+}
+
+/**
+ * Updates a post under the authenticated user's name
+ * @param postId Post ID
+ * @param title Post title
+ * @param description Post description
+ * @param demo Post demo link
+ */
+export async function updatePost(
+  postId: string,
+  title: string,
+  description: string,
+  demo: string | undefined,
+) {
+  if (!title || !description) return false;
+  const h = await headers();
+  const session = await auth.api.getSession({
+    headers: h,
+  });
+  if (!session) return false;
+
+  const sessionId = session.session.id;
+  const userId = session.user.id;
+  const database = createSupabase();
+
+  if (!(await sessionValid(sessionId, userId, database))) {
+    await auth.api.signOut({ headers: h });
+    redirect("/dashboard");
+  }
+
+  const { data: author, error } = await database
+    .from("post")
+    .select("author")
+    .eq("id", postId)
+    .single();
+
+  if (error) {
+    supabaseError(error);
+    return false;
+  }
+
+  if (userId !== author.author) {
+    await auth.api.signOut({ headers: h });
+    redirect("/dashboard");
+  }
+
+  const { error: updateError } = await database
+    .from("post")
+    .update({
+      title: title,
+      description: description,
+      last_edited: new Date().toISOString(),
+      demo: demo,
+    })
+    .eq("id", postId);
+
+  if (updateError) {
+    supabaseError(updateError);
+    return false;
+  }
   return true;
 }
 
@@ -250,6 +312,7 @@ export async function getPosts(page: number = 0) {
     .from("post")
     .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
+    .neq("id", "test")
     .range(from, to);
 
   if (postsError) {

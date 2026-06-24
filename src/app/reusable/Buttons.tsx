@@ -22,11 +22,25 @@ export const PushLink = forwardRef<HTMLAnchorElement, AnchorType>(
     return (
       <a
         ref={fref}
-        className={`bg-tertiary aspect-square text-font-primary border border-font-tertiary rounded text-center p-3 flex flex-col items-center ${className}`}
+        className={`bg-tertiary aspect-square text-font-primary border border-font-tertiary rounded text-center p-3 flex flex-col justify-center items-center ${className}`}
         {...props}
       >
         {children}
       </a>
+    );
+  },
+);
+
+export const PushButton = forwardRef<HTMLButtonElement, ButtonType>(
+  ({ className, children, ...props }, fref) => {
+    return (
+      <button
+        ref={fref}
+        className={`bg-tertiary aspect-square text-font-primary border border-font-tertiary rounded text-center p-3 flex flex-col justify-center items-center ${className}`}
+        {...props}
+      >
+        {children}
+      </button>
     );
   },
 );
