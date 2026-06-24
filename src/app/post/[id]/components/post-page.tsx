@@ -202,7 +202,10 @@ function Post({
               />
             </div>
             <div className="relative mt-10 flex flex-row justify-between items-center w-full">
-              <BlackButton className="relative bg-delete! shrink w-20 h-10 grid place-items-center">
+              <BlackButton
+                type="button"
+                className="relative bg-delete! shrink w-20 h-10 grid place-items-center"
+              >
                 <FaTrashCan />
               </BlackButton>
               <div className="relative flex flex-row justify-center items-center gap-2">
