@@ -205,16 +205,16 @@ const logPost = (
         footer: {
           text: footer,
         },
-        ...(descriptionTooLong && {
-          files: [
-            {
-              attachment: Buffer.from(description, "utf-8"),
-              name: `description-${postId}.txt`,
-            },
-          ],
-        }),
       },
     ],
+    ...(descriptionTooLong && {
+      files: [
+        {
+          attachment: Buffer.from(description, "utf-8"),
+          name: `description-${postId}.txt`,
+        },
+      ],
+    }),
   });
 };
 
