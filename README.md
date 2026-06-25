@@ -44,6 +44,7 @@ The variables not included are either just for logging (the Discord webhooks) or
 This is a NextJS project, and can be automatically deployed onto the web with minial setup using [Vercel](https://vercel.com/). Here are the commands:
 | Command     | Description |
 |-------------|-------------|
+| `npm install` | Install the dependencies (MUST)    |
 | `npm run dev` | Run code    |
 |`npm run build`| Build a production level version of the project (can be used to test)|
 |`auth:migrate` | Generate minimum SQL schema for BetterAUTH (already done using the schema file) |
