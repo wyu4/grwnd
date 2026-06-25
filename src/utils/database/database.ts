@@ -28,8 +28,24 @@ const defaultISO = new Date().toISOString();
  * @param payload Webhook payload
  * @returns Promise containing the webhook task
  */
-const createWebhook = (url: string | undefined = undefined, payload: any) => {
+const createWebhook = (
+  url: string | undefined = undefined,
+  payload: any,
+  files?: { attachment: Buffer; name: string }[],
+) => {
   if (!url) return Promise.resolve();
+  if (!!files && files.length > 0) {
+    const form = new FormData();
+    form.append("payload_json", JSON.stringify(payload));
+    files.forEach((file, i) => {
+      form.append(
+        `files[${i}]`,
+        new Blob([new Uint8Array(file.attachment)], { type: "text/plain" }),
+        file.name,
+      );
+    });
+    return fetch(url, { method: "POST", body: form });
+  }
   return fetch(url, {
     method: "POST",
     headers: {
@@ -195,27 +211,30 @@ const logPost = (
   footer: string,
 ) => {
   const descriptionTooLong = description.length > MAX_DESCRIPTION_LENGTH;
-  return createWebhook(webhook, {
-    embeds: [
-      {
-        color: color,
-        title: title,
-        description: `**Author:** \`${authorName}\` \`[${authorId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== null && demo.length > 0 ? demo : "no demo"}\`${descriptionTooLong ? "" : `\n\`\`\`${description}\`\`\``}`,
-        url: `${BETTER_AUTH_URL}/post/${postId}`,
-        footer: {
-          text: footer,
-        },
-      },
-    ],
-    ...(descriptionTooLong && {
-      files: [
+  return createWebhook(
+    webhook,
+    {
+      embeds: [
         {
-          attachment: Buffer.from(description, "utf-8"),
-          name: `description-${postId}.txt`,
+          color: color,
+          title: title,
+          description: `**Author:** \`${authorName}\` \`[${authorId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== null && demo.length > 0 ? demo : "no demo"}\`${descriptionTooLong ? "" : `\n\`\`\`${description}\`\`\``}`,
+          url: `${BETTER_AUTH_URL}/post/${postId}`,
+          footer: {
+            text: footer,
+          },
         },
       ],
-    }),
-  });
+    },
+    descriptionTooLong
+      ? [
+          {
+            attachment: Buffer.from(description, "utf-8"),
+            name: `description-${postId}.txt`,
+          },
+        ]
+      : undefined,
+  );
 };
 
 /**
