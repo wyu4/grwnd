@@ -8,7 +8,7 @@
 ![image](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
 > [!NOTE]
-> View the [live demo](https:/grwnd.wyu.app/) here.
+> View the [live demo](https//:grwnd.wyu.app/) here.
 
 Grwnd is a platform targetted towards developers and tech enthusiates. Users are able to post about projects worth knowing about.
 
