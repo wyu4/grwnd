@@ -109,7 +109,7 @@ async function userExists(id: string, database: DatabaseClient | void) {
   const { data: user, error: userError } = await database
     .from("user")
     .select("*")
-    .eq("id", id + "asds")
+    .eq("id", id)
     .maybeSingle();
 
   // console.log(user);
@@ -160,10 +160,8 @@ async function sessionValid(
  * @param [skipUserCheck=false] Whether or not to skip the user existance check
  * @returns The user's public profile, or a default one if an error occurs
  */
-export async function getPublicProfile(id: string, skipUserCheck: boolean = false) {
+export async function getPublicProfile(id: string) {
   const database = createSupabase();
-
-  if (!skipUserCheck && !(await userExists(id, database))) return DEFAULT_PUBLIC_PROFILE;
 
   const { data: profile, error: profileError } = await database
     .from("public_profile")
