@@ -16,6 +16,8 @@ import { auth } from "../authentication/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+const MAX_DESCRIPTION_LENGTH = 3000;
+
 type DatabaseClient = ReturnType<typeof createSupabase>;
 
 const defaultISO = new Date().toISOString();
@@ -27,7 +29,7 @@ const defaultISO = new Date().toISOString();
  * @returns Promise containing the webhook task
  */
 const createWebhook = (url: string | undefined = undefined, payload: any) => {
-  if (!url) return;
+  if (!url) return Promise.resolve();
   return fetch(url, {
     method: "POST",
     headers: {
@@ -129,7 +131,11 @@ async function userExists(id: string, database: DatabaseClient | void) {
  * @param database Optional pre-created database client
  * @returns `true` or `false`
  */
-async function sessionValid(sessionId: string, userId: string, database: DatabaseClient | void) {
+async function sessionValid(
+  sessionId: string,
+  userId: string,
+  database: DatabaseClient | void,
+) {
   if (!database) {
     database = createSupabase();
   }
@@ -145,7 +151,9 @@ async function sessionValid(sessionId: string, userId: string, database: Databas
   }
 
   return (
-    session && session.userId === userId && new Date(session.expiresAt).getTime() >= Date.now()
+    session &&
+    session.userId === userId &&
+    new Date(session.expiresAt).getTime() >= Date.now()
   );
 }
 
@@ -173,12 +181,53 @@ export async function getPublicProfile(id: string) {
 }
 
 /**
+ * Log a post using the Webhook API
+ */
+const logPost = (
+  color: number,
+  title: string,
+  authorName: string,
+  authorId: string,
+  postId: string,
+  description: string,
+  demo: string | null,
+  footer: string,
+) => {
+  const descriptionTooLong = description.length > MAX_DESCRIPTION_LENGTH;
+  return createWebhook(POST_WEBHOOK, {
+    embeds: [
+      {
+        color: color,
+        title: title,
+        description: `**Author:** \`${authorName}\` \`[${authorId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== null && demo.length > 0 ? demo : "no demo"}\`${descriptionTooLong ? "" : `\n\`\`\`${description}\`\`\``}`,
+        url: `${BETTER_AUTH_URL}/post/${postId}`,
+        footer: {
+          text: footer,
+        },
+        ...(descriptionTooLong && {
+          files: [
+            {
+              attachment: Buffer.from(description, "utf-8"),
+              name: `description-${postId}.txt`,
+            },
+          ],
+        }),
+      },
+    ],
+  });
+};
+
+/**
  * Creates a post under the authenticated user's name
  * @param title Post title
  * @param description Post description
  * @param demo Post demo link
  */
-export async function createPost(title: string, description: string, demo: string | undefined) {
+export async function createPost(
+  title: string,
+  description: string,
+  demo: string | undefined,
+) {
   if (!title || !description) return false;
   const h = await headers();
   const session = await auth.api.getSession({
@@ -198,37 +247,40 @@ export async function createPost(title: string, description: string, demo: strin
   let postId: string | undefined = undefined;
   while (postId === undefined) {
     postId = generateRandomString();
-    const { data: exists } = await database.from("post").select("*").eq("id", postId).maybeSingle();
+    const { data: exists } = await database
+      .from("post")
+      .select("*")
+      .eq("id", postId)
+      .maybeSingle();
     if (exists) postId = undefined;
   }
 
-  const { error: postError } = await database.from("post").insert({
+  const newPost = {
     id: postId,
     title: title,
     description: description,
     author: userId,
     created_at: new Date().toISOString(),
-    demo: demo,
-  });
+    demo: demo ?? null,
+  } as Database["public"]["Tables"]["post"]["Row"];
+
+  const { error: postError } = await database.from("post").insert(newPost);
 
   if (postError) {
     supabaseError(postError);
     return false;
   }
 
-  await createWebhook(POST_WEBHOOK, {
-    embeds: [
-      {
-        color: 0x00ff00,
-        title: `📰 ${title}`,
-        description: `**Author:** \`${session.user.name}\` \`[${userId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== undefined ? demo : "no demo"}\`\n\`\`\`${description}\`\`\``,
-        url: `${BETTER_AUTH_URL}/post/${postId}`,
-        footer: {
-          text: "NEW POST",
-        },
-      },
-    ],
-  });
+  await logPost(
+    0x00ff00,
+    `📰 ${title}`,
+    session.user.name,
+    userId,
+    postId,
+    description,
+    demo ?? null,
+    "NEW POST",
+  );
 
   return postId;
 }
@@ -293,19 +345,17 @@ export async function updatePost(
     return false;
   }
 
-  await createWebhook(EDIT_WEBHOOK, {
-    embeds: [
-      {
-        color: 0xffff00,
-        title: `📝 Edited: '${title}'`,
-        description: `**Author:** \`${session.user.name}\` \`[${userId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== undefined ? demo : "no demo"}\`\n\`\`\`${description}\`\`\``,
-        url: `${BETTER_AUTH_URL}/post/${postId}`,
-        footer: {
-          text: "EDIT POST",
-        },
-      },
-    ],
-  });
+  await logPost(
+    0xffff00,
+    `📝 Edited: '${title}'`,
+    session.user.name,
+    userId,
+    postId,
+    description,
+    demo ?? null,
+    "EDIT POST",
+  );
+
   return true;
 }
 
@@ -329,7 +379,11 @@ export async function deletePost(postId: string) {
     redirect("/dashboard");
   }
 
-  const { data: post, error } = await database.from("post").select("*").eq("id", postId).single();
+  const { data: post, error } = await database
+    .from("post")
+    .select("*")
+    .eq("id", postId)
+    .single();
 
   if (error) {
     supabaseError(error);
@@ -350,19 +404,17 @@ export async function deletePost(postId: string) {
     return false;
   }
 
-  await createWebhook(TRASH_WEBHOOK, {
-    embeds: [
-      {
-        color: 0xff0000,
-        title: `🗑️ Deleted: '${post.title}'`,
-        description: `**Author:** \`${session.user.name}\` \`[${userId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${post.demo !== undefined ? post.demo : "no demo"}\`\n\`\`\`${post.description}\`\`\``,
-        url: `${BETTER_AUTH_URL}/post/${postId}`,
-        footer: {
-          text: "DELETE POST",
-        },
-      },
-    ],
-  });
+  await logPost(
+    0xff0000,
+    `🗑️ Deleted: '${post.title}'`,
+    session.user.name,
+    userId,
+    postId,
+    post.description,
+    post.demo,
+    "DELETE POST",
+  );
+
   return true;
 }
 
