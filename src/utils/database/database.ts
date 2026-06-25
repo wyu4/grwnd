@@ -1,7 +1,15 @@
 "use server";
 
 import { createClient, PostgrestError } from "@supabase/supabase-js";
-import { FEED_PAGE_SIZE, SUPABASE_KEY, SUPABASE_URL } from "../environment";
+import {
+  BETTER_AUTH_URL,
+  EDIT_WEBHOOK,
+  ERROR_WEBHOOK,
+  FEED_PAGE_SIZE,
+  POST_WEBHOOK,
+  SUPABASE_KEY,
+  SUPABASE_URL,
+} from "../environment";
 import { Database } from "@/types/database.types";
 import { auth } from "../authentication/server";
 import { headers } from "next/headers";
@@ -11,8 +19,32 @@ type DatabaseClient = ReturnType<typeof createSupabase>;
 
 const defaultISO = new Date().toISOString();
 
-const supabaseError = (error: PostgrestError) =>
-  console.error(`[POSTGRE-${error.code}] ${error.message}`);
+/**
+ * Creates a POST request to a webhook URL
+ * @param url Webhook URL. This function self-returns if the URL is undefined.
+ * @param payload Webhook payload
+ * @returns Promise containing the webhook task
+ */
+const createWebhook = (url: string | undefined = undefined, payload: any) => {
+  if (!url) return;
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
+const supabaseError = (error: PostgrestError) => {
+  console.error(
+    `[POSTGRE-${error.code}] ${error.message}. Webhook will ${!ERROR_WEBHOOK ? "not " : ""}be sent.`,
+  );
+  createWebhook(ERROR_WEBHOOK, {
+    content: `**[❌ DATABASE ERROR][POSTGRE-${error.code}]:** "${error.message}"\n\`\`\`${error.details}\`\`\``,
+  });
+};
 
 const DEFAULT_PUBLIC_PROFILE: Database["public"]["Tables"]["public_profile"]["Row"] = {
   id: "err",
@@ -77,8 +109,8 @@ async function userExists(id: string, database: DatabaseClient | void) {
   const { data: user, error: userError } = await database
     .from("user")
     .select("*")
-    .eq("id", id)
-    .single();
+    .eq("id", id + "asds")
+    .maybeSingle();
 
   // console.log(user);
 
@@ -108,14 +140,18 @@ async function sessionValid(
     .from("session")
     .select("*")
     .eq("id", sessionId)
-    .single();
+    .maybeSingle();
 
   if (sessionError) {
     supabaseError(sessionError);
     return false;
   }
 
-  return session.userId === userId && new Date(session.expiresAt).getTime() >= Date.now();
+  return (
+    session &&
+    session.userId === userId &&
+    new Date(session.expiresAt).getTime() >= Date.now()
+  );
 }
 
 /**
@@ -194,6 +230,21 @@ export async function createPost(
     supabaseError(postError);
     return false;
   }
+
+  await createWebhook(POST_WEBHOOK, {
+    embeds: [
+      {
+        color: 0x00ff00,
+        title: `📰 ${title}`,
+        description: `**Author:** \`${session.user.name}\` \`[${userId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== undefined ? demo : "no demo"}\`\n\`\`\`${description}\`\`\``,
+        url: `${BETTER_AUTH_URL}/post/${postId}`,
+        footer: {
+          text: "NEW POST",
+        },
+      },
+    ],
+  });
+
   return postId;
 }
 
@@ -256,6 +307,20 @@ export async function updatePost(
     supabaseError(updateError);
     return false;
   }
+
+  await createWebhook(EDIT_WEBHOOK, {
+    embeds: [
+      {
+        color: 0xffff00,
+        title: `📝 Edited: '${title}'`,
+        description: `**Author:** \`${session.user.name}\` \`[${userId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${demo !== undefined ? demo : "no demo"}\`\n\`\`\`${description}\`\`\``,
+        url: `${BETTER_AUTH_URL}/post/${postId}`,
+        footer: {
+          text: "EDIT POST",
+        },
+      },
+    ],
+  });
   return true;
 }
 
