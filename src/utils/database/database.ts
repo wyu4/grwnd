@@ -9,6 +9,7 @@ import {
   POST_WEBHOOK,
   SUPABASE_KEY,
   SUPABASE_URL,
+  TRASH_WEBHOOK,
 } from "../environment";
 import { Database } from "@/types/database.types";
 import { auth } from "../authentication/server";
@@ -128,11 +129,7 @@ async function userExists(id: string, database: DatabaseClient | void) {
  * @param database Optional pre-created database client
  * @returns `true` or `false`
  */
-async function sessionValid(
-  sessionId: string,
-  userId: string,
-  database: DatabaseClient | void,
-) {
+async function sessionValid(sessionId: string, userId: string, database: DatabaseClient | void) {
   if (!database) {
     database = createSupabase();
   }
@@ -148,9 +145,7 @@ async function sessionValid(
   }
 
   return (
-    session &&
-    session.userId === userId &&
-    new Date(session.expiresAt).getTime() >= Date.now()
+    session && session.userId === userId && new Date(session.expiresAt).getTime() >= Date.now()
   );
 }
 
@@ -183,11 +178,7 @@ export async function getPublicProfile(id: string) {
  * @param description Post description
  * @param demo Post demo link
  */
-export async function createPost(
-  title: string,
-  description: string,
-  demo: string | undefined,
-) {
+export async function createPost(title: string, description: string, demo: string | undefined) {
   if (!title || !description) return false;
   const h = await headers();
   const session = await auth.api.getSession({
@@ -207,11 +198,7 @@ export async function createPost(
   let postId: string | undefined = undefined;
   while (postId === undefined) {
     postId = generateRandomString();
-    const { data: exists } = await database
-      .from("post")
-      .select("*")
-      .eq("id", postId)
-      .maybeSingle();
+    const { data: exists } = await database.from("post").select("*").eq("id", postId).maybeSingle();
     if (exists) postId = undefined;
   }
 
@@ -315,6 +302,63 @@ export async function updatePost(
         url: `${BETTER_AUTH_URL}/post/${postId}`,
         footer: {
           text: "EDIT POST",
+        },
+      },
+    ],
+  });
+  return true;
+}
+
+/**
+ * Deletes a post under the authenticated user's name
+ * @param postId Post ID
+ */
+export async function deletePost(postId: string) {
+  const h = await headers();
+  const session = await auth.api.getSession({
+    headers: h,
+  });
+  if (!session) return false;
+
+  const sessionId = session.session.id;
+  const userId = session.user.id;
+  const database = createSupabase();
+
+  if (!(await sessionValid(sessionId, userId, database))) {
+    await auth.api.signOut({ headers: h });
+    redirect("/dashboard");
+  }
+
+  const { data: post, error } = await database.from("post").select("*").eq("id", postId).single();
+
+  if (error) {
+    supabaseError(error);
+    return false;
+  }
+
+  if (!post) return false;
+
+  if (userId !== post.author) {
+    await auth.api.signOut({ headers: h });
+    redirect("/dashboard");
+  }
+
+  const { error: deleteError } = await database.from("post").delete().eq("id", postId);
+
+  if (deleteError) {
+    supabaseError(deleteError);
+    return false;
+  }
+
+  await createWebhook(TRASH_WEBHOOK, {
+    embeds: [
+      {
+        color: 0xff0000,
+        title: `🗑️ Deleted: '${post.title}'`,
+        description: `**Author:** \`${session.user.name}\` \`[${userId}]\`\n**Post ID:** \`${postId}\` \n**Demo:** \`${post.demo !== undefined ? post.demo : "no demo"}\`\n\`\`\`${post.description}\`\`\``,
+        url: `${BETTER_AUTH_URL}/post/${postId}`,
+        footer: {
+          text: "DELETE POST",
         },
       },
     ],

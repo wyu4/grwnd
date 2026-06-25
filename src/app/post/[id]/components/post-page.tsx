@@ -1,12 +1,13 @@
 "use client";
 
-import { BlackButton, PushButton, PushLink } from "@/app/reusable/Buttons";
+import { BlackButton, PushButton, PushLink, TabButton } from "@/app/reusable/Buttons";
 import { UndraggableImage } from "@/app/reusable/Images";
 import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
-import { getPost, updatePost } from "@/utils/database/database";
+import { deletePost, getPost, updatePost } from "@/utils/database/database";
 import { calculateTimeElapse, convertDateToReadable } from "@/utils/time-helpers";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { redirect } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
 import { FaCheck, FaEdit, FaLink, FaRegCalendar } from "react-icons/fa";
 import { FaTrashCan } from "react-icons/fa6";
 import { MdCancel } from "react-icons/md";
@@ -23,17 +24,28 @@ export default function PostPage({ isLoggedIn, isQuerier, postData }: PostPageTy
   const uploadDate = new Date(post.created_at ?? 0);
 
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const onNavigate = () => setLoading(true);
+  const onDelete = async () => {
+    onNavigate();
+    const status = await deletePost(post.id);
+    if (status) {
+      redirect("/dashboard");
+    }
+    setLoading(false);
+    setDeleting(false);
+  };
 
   return (
-    <div className="relative bg-primary w-full flex flex-col justify-start items-center">
+    <div className="relative bg-primary w-full min-h-screen flex flex-col justify-start items-center">
       <LoadingScreen hidden={!loading} />
       <TopBar isLoggedIn={isLoggedIn} onNavigate={onNavigate} />
       {!!postData && (
-        <div className="relative w-full h-full flex flex-col justify-center items-center p-4">
+        <div className="relative grow w-full h-full flex flex-col justify-center items-center p-4">
           <Post
             postId={post.id}
+            onDelete={() => setDeleting(true)}
             editable={isQuerier}
             author={{
               icon: author.icon,
@@ -48,6 +60,27 @@ export default function PostPage({ isLoggedIn, isQuerier, postData }: PostPageTy
             link={post.demo ?? undefined}
             repo={post.repo ?? undefined}
           />
+          <div
+            hidden={!deleting}
+            className="absolute top-0 left-0 w-full h-full bg-font-primary/50 z-20 p-4 flex flex-col items-center justify-center"
+          >
+            <div className="relative bg-primary rounded-xl border border-font-tertiary flex flex-col p-8 gap-4 md:max-w-1/2">
+              <p className="text-xl">Are you sure you want to delete this post?</p>
+              <div className="flex flex-row justify-around items-center gap-4 text-xl font-bold">
+                <TabButton
+                  href={null}
+                  onClick={() => setDeleting(false)}
+                  isButton={true}
+                  name="cancel"
+                >
+                  <MdCancel />
+                </TabButton>
+                <TabButton href={null} onClick={onDelete} isButton={true} name="delete">
+                  <FaCheck />
+                </TabButton>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -63,8 +96,10 @@ function Post({
   link,
   repo,
   editable,
+  onDelete,
   onNavigate,
 }: {
+  onDelete?: () => void;
   postId: string;
   author: PostAuthor;
   title: string;
@@ -104,8 +139,7 @@ function Post({
   };
 
   useEffect(() => {
-    const update = () =>
-      setTimeElapsed(calculateTimeElapse(Date.now() - uploadDate.getTime()));
+    const update = () => setTimeElapsed(calculateTimeElapse(Date.now() - uploadDate.getTime()));
     update();
     const id = setInterval(update, 60 * 1000);
     return () => clearInterval(id);
@@ -121,7 +155,7 @@ function Post({
       onSubmit={update}
     >
       <LoadingScreen hidden={!updating} />
-      <div className="relative w-full bg-inherit rounded-t-2xl p-4 z-10 flex flex-col justify-center items-center gap-1">
+      <div className="relative w-full bg-inherit rounded-t-2xl p-4 flex flex-col justify-center items-center gap-1">
         {!editing ? (
           <h1 className="text-center">{title}</h1>
         ) : (
@@ -204,6 +238,7 @@ function Post({
             <div className="relative mt-10 flex flex-row justify-between items-center w-full">
               <BlackButton
                 type="button"
+                onClick={onDelete}
                 className="relative bg-delete! shrink w-20 h-10 grid place-items-center"
               >
                 <FaTrashCan />
@@ -230,15 +265,7 @@ function Post({
   );
 }
 
-function PostLink({
-  name,
-  link,
-  children,
-}: {
-  link?: string;
-  name: string;
-  children?: ReactNode;
-}) {
+function PostLink({ name, link, children }: { link?: string; name: string; children?: ReactNode }) {
   return (
     <>
       {link && (

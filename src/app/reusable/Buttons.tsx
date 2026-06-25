@@ -1,7 +1,9 @@
 "use client";
 
 import { AnchorType, ButtonType } from "@/types/global";
-import { forwardRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { forwardRef, ReactNode, RefObject, useRef, useState } from "react";
 
 export const BlackButton = forwardRef<HTMLButtonElement, ButtonType>(
   ({ className, children, ...props }, fref) => {
@@ -44,3 +46,64 @@ export const PushButton = forwardRef<HTMLButtonElement, ButtonType>(
     );
   },
 );
+
+export function TabButton({
+  href,
+  name,
+  children,
+  isButton = false,
+  className = "",
+  onClick,
+}: {
+  name?: string;
+  href: string | null;
+  children: ReactNode;
+  isButton?: boolean;
+  className?: string;
+  onClick?: () => void;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const [hovering, setHovering] = useState(false);
+
+  useGSAP(() => {
+    if (ref.current === null) return;
+    gsap.set(ref.current, {
+      color: hovering ? "var(--font-secondary)" : "var(--font-primary)",
+    });
+  }, [hovering]);
+
+  return (
+    <>
+      {isButton ? (
+        <button
+          ref={ref as RefObject<HTMLButtonElement>}
+          className={
+            "flex flex-col justify-center items-center text-3xl gap-0.5 text-font-primary " +
+            className
+          }
+          onClick={onClick}
+          onMouseEnter={() => setHovering(true)}
+          onMouseLeave={() => setHovering(false)}
+        >
+          {children}
+          {name && <p className="text-sm">{name}</p>}
+        </button>
+      ) : (
+        <a
+          ref={ref as RefObject<HTMLAnchorElement>}
+          className={
+            "flex flex-col justify-center items-center text-3xl gap-0.5 text-font-primary " +
+            className
+          }
+          href={href ?? undefined}
+          onClick={onClick}
+          onMouseEnter={() => setHovering(true)}
+          onMouseLeave={() => setHovering(false)}
+        >
+          {children}
+          {name && <p className="text-sm">{name}</p>}
+        </a>
+      )}
+    </>
+  );
+}

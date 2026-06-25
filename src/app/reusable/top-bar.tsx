@@ -1,20 +1,14 @@
 "use client";
 
-import gsap from "gsap";
 import { authClient, signInGitHub } from "@/utils/authentication/client";
-import { useGSAP } from "@gsap/react";
-import { ReactNode, RefObject, useRef, useState } from "react";
+import { useState } from "react";
 import { FaHome, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { PageType } from "@/types/global";
 import { FaCirclePlus } from "react-icons/fa6";
-import { BlackButton } from "./Buttons";
+import { BlackButton, TabButton } from "./Buttons";
 import { MdCancel } from "react-icons/md";
-import { redirect } from "next/navigation";
 
-export default function TopBar({
-  isLoggedIn,
-  onNavigate,
-}: PageType & { onNavigate?: () => void }) {
+export default function TopBar({ isLoggedIn, onNavigate }: PageType & { onNavigate?: () => void }) {
   const [authenticating, setAuthenticating] = useState(false);
 
   return (
@@ -101,66 +95,5 @@ function AuthenticatedTopBar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function TabButton({
-  href,
-  name,
-  children,
-  isButton = false,
-  className = "",
-  onClick,
-}: {
-  name?: string;
-  href: string | null;
-  children: ReactNode;
-  isButton?: boolean;
-  className?: string;
-  onClick?: () => void;
-}) {
-  const ref = useRef<HTMLElement>(null);
-  const [hovering, setHovering] = useState(false);
-
-  useGSAP(() => {
-    if (ref.current === null) return;
-    gsap.set(ref.current, {
-      color: hovering ? "var(--font-secondary)" : "var(--font-primary)",
-    });
-  }, [hovering]);
-
-  return (
-    <>
-      {isButton ? (
-        <button
-          ref={ref as RefObject<HTMLButtonElement>}
-          className={
-            "flex flex-col justify-center items-center text-3xl gap-0.5 text-font-primary " +
-            className
-          }
-          onClick={onClick}
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
-        >
-          {children}
-          {name && <p className="text-sm">{name}</p>}
-        </button>
-      ) : (
-        <a
-          ref={ref as RefObject<HTMLAnchorElement>}
-          className={
-            "flex flex-col justify-center items-center text-3xl gap-0.5 text-font-primary " +
-            className
-          }
-          href={href ?? undefined}
-          onClick={onClick}
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
-        >
-          {children}
-          {name && <p className="text-sm">{name}</p>}
-        </a>
-      )}
-    </>
   );
 }
