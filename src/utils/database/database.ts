@@ -184,6 +184,7 @@ export async function getPublicProfile(id: string) {
  * Log a post using the Webhook API
  */
 const logPost = (
+  webhook: string | undefined,
   color: number,
   title: string,
   authorName: string,
@@ -194,7 +195,7 @@ const logPost = (
   footer: string,
 ) => {
   const descriptionTooLong = description.length > MAX_DESCRIPTION_LENGTH;
-  return createWebhook(POST_WEBHOOK, {
+  return createWebhook(webhook, {
     embeds: [
       {
         color: color,
@@ -255,16 +256,14 @@ export async function createPost(
     if (exists) postId = undefined;
   }
 
-  const newPost = {
+  const { error: postError } = await database.from("post").insert({
     id: postId,
     title: title,
     description: description,
     author: userId,
     created_at: new Date().toISOString(),
     demo: demo ?? null,
-  } as Database["public"]["Tables"]["post"]["Row"];
-
-  const { error: postError } = await database.from("post").insert(newPost);
+  });
 
   if (postError) {
     supabaseError(postError);
@@ -272,6 +271,7 @@ export async function createPost(
   }
 
   await logPost(
+    POST_WEBHOOK,
     0x00ff00,
     `📰 ${title}`,
     session.user.name,
@@ -346,6 +346,7 @@ export async function updatePost(
   }
 
   await logPost(
+    EDIT_WEBHOOK,
     0xffff00,
     `📝 Edited: '${title}'`,
     session.user.name,
@@ -405,6 +406,7 @@ export async function deletePost(postId: string) {
   }
 
   await logPost(
+    TRASH_WEBHOOK,
     0xff0000,
     `🗑️ Deleted: '${post.title}'`,
     session.user.name,
