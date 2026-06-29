@@ -15,7 +15,7 @@ Grwnd is a platform targetted towards developers and tech enthusiates. Users are
 ## Features
 
 > [!NOTE]
-> This project is more of a demo of the capabilities of databases, and lacks certain crutial features.
+> This project is more of a demo of the capabilities of databases, and lacks certain features like voting and commenting on other posts.
 
 - ➕ Create posts
 - 🖍️ Edit posts
