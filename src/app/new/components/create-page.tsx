@@ -5,6 +5,7 @@ import { BlackButton } from "@/app/reusable/Buttons";
 import LoadingScreen from "@/app/reusable/loading";
 import TopBar from "@/app/reusable/top-bar";
 import { createPost } from "@/utils/database/database";
+import { NEXT_PUBLIC_DESC_LIMIT, NEXT_PUBLIC_TITLE_LIMIT } from "@/utils/environment";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
@@ -13,6 +14,7 @@ export default function CreatePage() {
   const [loading, setLoading] = useState(false);
 
   const [creating, setCreating] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   const submit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,6 +29,19 @@ export default function CreatePage() {
 
     if (!title || !description) {
       setCreating(false);
+      setMessage(`Please input a ${!title ? "title" : "description"}.`);
+      return;
+    }
+
+    if (title.length > NEXT_PUBLIC_TITLE_LIMIT) {
+      setCreating(false);
+      setMessage(`Your title exceeds the character limit of ${NEXT_PUBLIC_TITLE_LIMIT}.`);
+      return;
+    }
+
+    if (description.length > NEXT_PUBLIC_DESC_LIMIT) {
+      setCreating(false);
+      setMessage(`Your description exceeds the character limit of ${NEXT_PUBLIC_TITLE_LIMIT}.`);
       return;
     }
 
@@ -53,19 +68,22 @@ export default function CreatePage() {
           className="relative text-xl p-8 gap-4 bg-primary border border-font-tertiary rounded-2xl flex flex-col justify-start items-center overflow-clip md:w-1/2"
         >
           <input
-            required
             className="bg-secondary text-3xl font-bold"
             name="title"
             type="text"
             placeholder="What is your project?"
           />
           <textarea
-            required
             className="bg-secondary!"
             name="description"
             placeholder="Expand on your idea."
           />
           <OptionalLink name="link" placeholder="https://" text="Website / Demo" />
+          {message && (
+            <div className="relative flex text-delete">
+              <p>{message}</p>
+            </div>
+          )}
           <BlackButton
             className="relative shrink w-20 grid place-items-center"
             type="submit"

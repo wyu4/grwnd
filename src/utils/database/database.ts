@@ -6,6 +6,8 @@ import {
   EDIT_WEBHOOK,
   ERROR_WEBHOOK,
   FEED_PAGE_SIZE,
+  NEXT_PUBLIC_DESC_LIMIT,
+  NEXT_PUBLIC_TITLE_LIMIT,
   POST_WEBHOOK,
   SUPABASE_KEY,
   SUPABASE_URL,
@@ -83,7 +85,8 @@ const DEFAULT_PUBLIC_PROFILE: Database["public"]["Tables"]["public_profile"]["Ro
  * @param s Unknown URL
  * @returns Boolean value
  */
-const validateURL = (s: string) => {
+const validateURL = (s: string | undefined) => {
+  if (!s) return false;
   try {
     const url = new URL(s);
     return url.protocol === "http:" || url.protocol === "https:";
@@ -147,11 +150,7 @@ async function userExists(id: string, database: DatabaseClient | void) {
  * @param database Optional pre-created database client
  * @returns `true` or `false`
  */
-async function sessionValid(
-  sessionId: string,
-  userId: string,
-  database: DatabaseClient | void,
-) {
+async function sessionValid(sessionId: string, userId: string, database: DatabaseClient | void) {
   if (!database) {
     database = createSupabase();
   }
@@ -167,9 +166,7 @@ async function sessionValid(
   }
 
   return (
-    session &&
-    session.userId === userId &&
-    new Date(session.expiresAt).getTime() >= Date.now()
+    session && session.userId === userId && new Date(session.expiresAt).getTime() >= Date.now()
   );
 }
 
@@ -243,11 +240,7 @@ const logPost = (
  * @param description Post description
  * @param demo Post demo link
  */
-export async function createPost(
-  title: string,
-  description: string,
-  demo: string | undefined,
-) {
+export async function createPost(title: string, description: string, demo: string | undefined) {
   if (!title || !description) return false;
   const h = await headers();
   const session = await auth.api.getSession({
@@ -267,21 +260,17 @@ export async function createPost(
   let postId: string | undefined = undefined;
   while (postId === undefined) {
     postId = generateRandomString();
-    const { data: exists } = await database
-      .from("post")
-      .select("*")
-      .eq("id", postId)
-      .maybeSingle();
+    const { data: exists } = await database.from("post").select("*").eq("id", postId).maybeSingle();
     if (exists) postId = undefined;
   }
 
   const { error: postError } = await database.from("post").insert({
     id: postId,
-    title: title,
-    description: description,
+    title: title.substring(0, NEXT_PUBLIC_TITLE_LIMIT),
+    description: description.substring(0, NEXT_PUBLIC_DESC_LIMIT),
     author: userId,
     created_at: new Date().toISOString(),
-    demo: demo ?? null,
+    demo: validateURL(demo) ? demo : null,
   });
 
   if (postError) {
@@ -352,10 +341,10 @@ export async function updatePost(
   const { error: updateError } = await database
     .from("post")
     .update({
-      title: title,
-      description: description,
+      title: title.substring(0, NEXT_PUBLIC_TITLE_LIMIT),
+      description: description.substring(0, NEXT_PUBLIC_DESC_LIMIT),
       last_edited: new Date().toISOString(),
-      demo: demo,
+      demo: validateURL(demo) ? demo : null,
     })
     .eq("id", postId);
 
@@ -399,11 +388,7 @@ export async function deletePost(postId: string) {
     redirect("/dashboard");
   }
 
-  const { data: post, error } = await database
-    .from("post")
-    .select("*")
-    .eq("id", postId)
-    .single();
+  const { data: post, error } = await database.from("post").select("*").eq("id", postId).single();
 
   if (error) {
     supabaseError(error);
