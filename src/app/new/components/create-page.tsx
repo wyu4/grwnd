@@ -50,6 +50,7 @@ export default function CreatePage() {
       setCreating(false);
       return;
     }
+    setLoading(true);
     redirect(`/post/${id}`);
   };
 
@@ -88,6 +89,9 @@ export default function CreatePage() {
             className="relative shrink w-20 grid place-items-center"
             type="submit"
             disabled={creating}
+            style={{
+              opacity: creating ? 0.5 : 1,
+            }}
           >
             <FaArrowRight />
           </BlackButton>
